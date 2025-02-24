@@ -176,7 +176,7 @@ public class PlayerController : MonoBehaviour
     bool ContinueLadder()
     {
         float offY = Mathf.Abs(transform.position.y - ladderBound.center.y);
-        float diffY = (ladderBound.size.y) - offY;
+        float diffY = (ladderBound.size.y * 0.5f) - offY;
         return diffY > 0.01f;
     }
     public IEnumerator Ladder_co()
@@ -184,7 +184,10 @@ public class PlayerController : MonoBehaviour
         float start_x = ladderBound.center.x;
         var startPos = transform.position;
         startPos.x = ladderBound.center.x;
+        transform.position = startPos;
         animator.SetBool("ClimbLadder", climbLadder);
+        rigid2d.gravityScale = 0;
+        rigid2d.velocity = Vector2.zero;
 
         while (ContinueLadder())
         {
@@ -195,7 +198,12 @@ public class PlayerController : MonoBehaviour
             yield return null;
         }
 
+        var endpos = transform.position;
+        endpos.y += 0.1f;
+        transform.position = endpos;
+
         climbLadder = false;
+        rigid2d.gravityScale = 1;
         animator.SetBool("ClimbLadder", climbLadder);
         yield break;
     }
