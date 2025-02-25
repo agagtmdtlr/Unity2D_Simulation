@@ -5,34 +5,50 @@ using UnityEngine;
 
 using UnityEngine.UI;
 
+public enum MovementState
+{
+    Ground,
+    Jump,
+    Climb,
+    Ladder
+}
+
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private Text debugtxt;
     [SerializeField] private Animator animator;
+
+    [Header("Ground Info")]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpSpeed = 700f;
     [SerializeField] private Rigidbody2D body;
     [SerializeField] private BoxCollider2D collider;
     [SerializeField] private SpriteRenderer renderer;
-
-    [SerializeField] private Text debugtxt;
-
     [SerializeField] private bool isGrounded;
 
-    [SerializeField] private bool climbPlatform;
-    [SerializeField] private bool throughClimbVolume;
-    [SerializeField] Bounds platformBound;
+    [SerializeField] bool inputJump;
 
-    private bool throughLadder;
-    private bool climbLadder;
-    [SerializeField] Bounds ladderBound;
+    [Header("Climb Info")]
+    [SerializeField] private bool climbingPlatform;
+    [SerializeField] private ClimbDetection climbDetection;
+
+    [Header("Ladder Info")]
+    private bool climbingLadder;
+    [SerializeField] LadderDetection ladderDetection;
+    [SerializeField] LayerMask whatIsLadder;
 
     [SerializeField] private Vector2 velocity;
     [SerializeField] protected Vector2 groundNormal;
+    float minDistanceToLadder = 0.5f;
+
     protected ContactFilter2D contactFilter;
     protected RaycastHit2D[] hitBuffer = new RaycastHit2D[16];
     protected const float minMoveDistance = 0.001f;
     protected const float shellRadius = 0.01f;
     protected const float minGroundNormalY = 0.65f;
+
+    float inputX;
+    float inputY;
     // Start is called before the first frame update
     void Start()
     {
@@ -46,6 +62,9 @@ public class PlayerController : MonoBehaviour
         TryGetComponent(out collider);
         TryGetComponent(out body);
 
+        ladderDetection = GetComponentInChildren<LadderDetection>();
+        climbDetection = GetComponentInChildren<ClimbDetection>();
+
         isGrounded = false;
     }
 
@@ -53,15 +72,51 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (climbPlatform || climbLadder)
+        
+
+        inputY = Input.GetAxisRaw("Vertical");
+        float axisY_abs = Mathf.Abs(inputY);
+
+        inputX = Input.GetAxisRaw("Horizontal");
+        float axisX_abs = Mathf.Abs(inputX);
+
+        if (climbingPlatform || climbingLadder)
         {
             return;
         }
+
+        velocity.x = inputX * moveSpeed;
+
 
         if (!isGrounded)
         {
             velocity += Physics2D.gravity * Time.deltaTime;
         }
+
+        bool inputJump = Input.GetKeyDown(KeyCode.Space);
+        if (inputJump)
+        {
+            if (isGrounded.Equals(false))
+            {
+                velocity.y = 0f;
+                animator.SetTrigger("DoubleJump");
+            }
+
+            velocity.y = jumpSpeed;
+        }
+
+        if (Input.GetKeyUp(KeyCode.Space) && velocity.y > 0)
+        {
+            velocity.y = velocity.y * 0.5f;
+        }
+
+       
+
+        if (axisX_abs > 0)
+        {
+            renderer.flipX = inputX < 0;
+        }
+
         //body.position = body.position + velocity * Time.deltaTime;
         var deltaPosition = velocity * Time.deltaTime;
         var moveAlongGround = new Vector2(groundNormal.y, -groundNormal.x);
@@ -73,65 +128,32 @@ public class PlayerController : MonoBehaviour
     
     void Update()
     {
-        if(climbPlatform || climbLadder)
+        animator.SetBool("isGrounded", isGrounded);
+        animator.SetFloat("JumpSpeed", velocity.y);
+        animator.SetFloat("GroundSpeed", Mathf.Abs(inputX));
+        animator.SetFloat("dir_y", inputY);
+
+        if (climbingPlatform || climbingLadder)
         {
             return;
         }
-        animator.SetBool("isGrounded", isGrounded);
 
-        float axisY = Input.GetAxisRaw("Vertical");
-        float axisY_abs = Mathf.Abs(axisY);
-
-        float axisX = Input.GetAxisRaw("Horizontal");
-        float axisX_abs = Mathf.Abs(axisX);
-
-        velocity.x = axisX * moveSpeed;        
-
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            if (isGrounded.Equals(false))
-            {
-                velocity.y = 0f;
-                animator.SetTrigger("DoubleJump");
-            }
-
-            velocity.y = jumpSpeed;
-        }
-
-        if( Input.GetKeyUp(KeyCode.Space) && velocity.y > 0)
-        {
-            velocity.y = velocity.y * 0.5f;
-        }
-
-        
-
-
-        
-        animator.SetFloat("JumpSpeed", velocity.y);
-        animator.SetFloat("GroundSpeed", Mathf.Abs(axisX_abs));
-        animator.SetFloat("dir_y", axisY);
-
-        Vector3 default_scale = Vector3.one;
-        if(axisX_abs > 0)
-        {
-            renderer.flipX = axisX < 0;
-        }
-
-        if(axisY > 0 && AvaiableClimb())
+        if (inputY > 0 && AvaiableClimb())
         {
             StartClimb();
         }
 
-        if(axisY > 0 && AvaibaleLadder())
+        if(AvaibaleLadder())
         {
             StartLadder();
         }
-        debugtxt.text = $"Velocity {velocity}";
     }
 
     bool AvaiableClimb()
     {
-        if( throughClimbVolume )
+        
+
+        if (climbDetection.throungBound && !climbingPlatform)
         {
             return true;
         }
@@ -140,10 +162,19 @@ public class PlayerController : MonoBehaviour
 
     bool AvaibaleLadder()
     {
-        if(throughLadder)
+        // 사다리 타는 중이 아니고
+        // 사다리가 가까이 있고
+        // 수직 방향 입력이 발생했을때만
+        if (ladderDetection.throughBound && !climbingLadder && Mathf.Abs(inputY) > 0.1f)
         {
-            return true;
+            RaycastHit2D hit2d = Physics2D.Raycast(collider.bounds.center, Vector2.up * Mathf.Sign(inputY), 100f, whatIsLadder);
+            float minDistanceToLadder = 0.5f; // 너무 가까우면 무시한다.
+            if (hit2d.collider != null && hit2d.distance > minDistanceToLadder)
+            {
+                return true;
+            }
         }
+
         return false;
     }
 
@@ -167,89 +198,66 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Climb"))
-        {
-            throughClimbVolume = true;
-
-            if( collision.transform.parent.TryGetComponent(out Collider2D platformColl ))
-            {
-                platformBound = platformColl.bounds;
-            }
-            else
-            {
-                Debug.LogAssertion("failed get parent collider");
-            }
-        }
-        
-        if(collision.CompareTag("Ladder"))
-        {
-            throughLadder = true;
-            ladderBound = collision.bounds;
-        }
-
-    }
-
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-
-        if (collision.CompareTag("Climb"))
-        {
-            throughClimbVolume = false;
-        }
-
-        if (collision.CompareTag("Ladder"))
-        {
-            throughLadder = false;
-        }
-
-    }
 
     bool ContinueLadder()
     {
-        float offY = Mathf.Abs(body.position.y - ladderBound.center.y);
-        float diffY = (ladderBound.size.y * 0.5f) - offY;
-        return diffY > 0.01f;
+        float yabs = Mathf.Abs(inputY);
+        if(yabs < 0.1f)
+        {
+            return true;
+        }
+
+        RaycastHit2D hit2d = Physics2D.Raycast(collider.bounds.center, Vector2.up * Mathf.Sign(inputY),100f , whatIsLadder);
+        return hit2d.distance > minDistanceToLadder;
     }
+
     public IEnumerator Ladder_co()
     {
-        float start_x = ladderBound.center.x;
+        float start_x = ladderDetection.bound.center.x;
         var startPos = body.position;
-        startPos.x = ladderBound.center.x;
+        startPos.x = ladderDetection.bound.center.x;
+        //startPos.y = Mathf.Clamp(startPos.y, ladderDetection.bound.min.y + 0.1f, ladderDetection.bound.max.y - 0.1f);
         body.position = startPos;
-        animator.SetBool("ClimbLadder", climbLadder);
+        animator.SetBool("ClimbLadder", climbingLadder);
         velocity = Vector2.zero;
+
+        float height = collider.bounds.size.y;
+        var toppos = ladderDetection.bound.max.y + height;
+        var bottompos = ladderDetection.bound.min.y + height;
+
 
         renderer.color = Color.yellow;
 
         while (ContinueLadder())
         {
-            float axisY = Input.GetAxisRaw("Vertical");
-            body.position = body.position + Vector2.up * axisY * moveSpeed * Time.deltaTime;
-            animator.SetFloat("dir_y", axisY);
+            body.position = body.position + Vector2.up * inputY * moveSpeed * Time.deltaTime;
+            animator.SetFloat("dir_y", inputY);
 
             yield return null;
         }
 
         var endpos = body.position;
-        endpos.y += 0.1f;
+        //endpos.y += 0.1f;
         body.position = endpos;
 
-        climbLadder = false;
-        animator.SetBool("ClimbLadder", climbLadder);
+        climbingLadder = false;
+        animator.SetBool("ClimbLadder", climbingLadder);
 
         renderer.color = Color.white;
 
-
         yield break;
+    }
+
+    float Half(float y)
+    {
+        return y;
     }
 
     public void StartLadder()
     {
         Debug.Log("Start Ladder");
-        climbLadder = true;
-        throughLadder = false;
+        climbingLadder = true;
+        ladderDetection.throughBound = false;
         StopCoroutine("Ladder_co");
         StartCoroutine("Ladder_co");
     }
@@ -259,7 +267,7 @@ public class PlayerController : MonoBehaviour
         renderer.color = Color.red;
 
 
-        float platformY = platformBound.max.y + 0.1f;
+        float platformY = climbDetection.bound.max.y + 0.1f;
         velocity = Vector2.zero;
         // start position
         var startPosition = body.position;
@@ -280,7 +288,7 @@ public class PlayerController : MonoBehaviour
         }
 
         body.position = normalizedPos;
-        climbPlatform = false;
+        climbingPlatform = false;
         animator.SetBool("ClimbPlatform", false);
 
         renderer.color = Color.white;
@@ -291,8 +299,8 @@ public class PlayerController : MonoBehaviour
     public void OnClimbFinished()
     {
         isGrounded = true;
-        climbPlatform = false;
-        float platformY = platformBound.max.y;
+        climbingPlatform = false;
+        float platformY = climbDetection.bound.max.y;
         var startPosition = body.position;
         Vector3 normalizedPos = new Vector3(startPosition.x, platformY, 0f);
         body.position = normalizedPos;
@@ -307,20 +315,34 @@ public class PlayerController : MonoBehaviour
         velocity = Vector2.zero;
         renderer.color = Color.red;
         var startPosition = body.position;
-        float platformY = platformBound.max.y;
+        float platformY = climbDetection.bound.max.y;
         platformY -= 1.323772f; // 하 이거 하드코딩해야되나 ㅠㅠ
         startPosition.y = platformY;
         body.position = startPosition;
 
-        climbPlatform = true;
-        throughClimbVolume = false;
+        climbingPlatform = true;
+        climbDetection.throungBound = false;
         animator.SetBool("ClimbPlatform", true);
         //StopCoroutine("Climb_co");
         //StartCoroutine("Climb_co");
 
     }
 
+
+    private void OnGUI()
+    {
+        DebugTextManager.Write($"Velocity {velocity}");
+    }
+
     private void OnDrawGizmos()
     {
+        Gizmos.color = Color.blue;
+        if(body)
+            Gizmos.DrawWireSphere(body.position, 0.1f);
+        Gizmos.color = Color.green;
+        if(collider)
+            Gizmos.DrawWireSphere(collider.bounds.center, 0.1f);
+
+
     }
 }
