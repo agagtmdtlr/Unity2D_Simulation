@@ -10,11 +10,18 @@ public class PoppinHightlightButton : Button
 
     public override void OnPointerEnter(PointerEventData eventData)
     {
-        if(coroutine != null)
+        base.OnPointerEnter(eventData);
+
+        if (coroutine != null)
         {
-            StopCoroutine(coroutine);
+            return;
         }
         StartCoroutine(PointerEnter_Co(GetComponent<RectTransform>()));
+    }
+
+    public override void OnPointerExit(PointerEventData eventData)
+    {
+        base.OnPointerExit(eventData);
     }
 
     private IEnumerator PointerEnter_Co(RectTransform transform)
@@ -26,7 +33,7 @@ public class PoppinHightlightButton : Button
         while(t < 1f)
         {
             float curVal = EasingFunction.EaseInSine(1f, 2f, t);
-            transform.localScale = new Vector2(curVal, 1f);
+            transform.localScale = new Vector2(curVal, curVal);
             yield return wfs;
             t += 0.1f;
         }
