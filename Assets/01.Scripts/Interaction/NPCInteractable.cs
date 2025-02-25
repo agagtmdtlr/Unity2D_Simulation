@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class NPCInteractable : InteractableObject
+public class NPCInteractable : Interactable
 {
     UI_NPC_Interaction npc_choice_ui;
     BoxCollider2D box;
     List<Button> buttons = new List<Button>(1);
-
+    Interactor interactor;
     protected override void Start()
     {
         base.Start();
@@ -18,21 +18,24 @@ public class NPCInteractable : InteractableObject
 
     protected override void Update()
     {
-        base.Update();        
+        base.Update();     
+        
+        if(interactor)
+        {
+            float dist = Vector3.Distance(interactor.transform.position, transform.position);
+            if( dist > interactor.interactionRange )
+            {
+                npc_choice_ui.gameObject.SetActive(false);
+                interactor = null;  
+            }
+         
+        }    
     }
 
-    protected override void OnStayInteractor()
+    public override void Interact(GameObject executer)
     {
+        executer.TryGetComponent(out interactor);
 
-    }
-
-    protected override void OnExitInteractor()
-    {
-        npc_choice_ui.gameObject.SetActive(false);
-    }
-
-    protected override void OnInteract(GameObject executer)
-    {
         if( npc_choice_ui.transform.TryGetComponent(out RectTransform rt) )
         {
             rt.position = Camera.main.WorldToScreenPoint(box.bounds.center + Vector3.up * box.bounds.size.y);
