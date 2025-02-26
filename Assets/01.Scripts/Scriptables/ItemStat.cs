@@ -5,7 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "ItemStat", menuName = "ScriptableObjects/ItemStat", order = 1)]
 public class ItemStat : ScriptableObject
 {
-    public Sprite image;
-    public string name;
-    public int cost;
+    public Sprite itemImage;
+    public string itemName;
+    public int itemCost;
 }

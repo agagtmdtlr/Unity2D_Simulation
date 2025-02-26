@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Interactor : MonoBehaviour
 {
-    Collider2D collider;
+    Collider2D collider2d;
     public float interactionRange = 1.0f;
     [SerializeField] private LayerMask whatIsInteractable;
     List<Interactable> founditeractables = new List<Interactable>();
@@ -16,7 +16,7 @@ public class Interactor : MonoBehaviour
 
     private void Awake()
     {
-        TryGetComponent(out collider);
+        TryGetComponent(out collider2d);
 
         // create Interaction trigger volume for Interactor;
         {
@@ -25,7 +25,7 @@ public class Interactor : MonoBehaviour
             interactorTriggerVolume.layer = gameObject.layer;
             
             interactorTriggerVolume.transform.SetParent(this.transform);
-            interactorTriggerVolume.transform.localPosition = (collider.bounds.center - transform.position);
+            interactorTriggerVolume.transform.localPosition = (collider2d.bounds.center - transform.position);
 
             CircleCollider2D volume = interactorTriggerVolume.AddComponent<CircleCollider2D>();
             volume.radius = interactionRange;
@@ -42,7 +42,7 @@ public class Interactor : MonoBehaviour
         {
             Collider2D[] colliders =
                 Physics2D.OverlapCircleAll(
-                    collider.bounds.center,
+                    collider2d.bounds.center,
                     interactionRange,
                     whatIsInteractable);
 
@@ -60,7 +60,7 @@ public class Interactor : MonoBehaviour
         float minDistance = Mathf.Infinity;
         foreach (Interactable other in founditeractables)
         {
-            float dist = Vector3.Distance(collider.bounds.center, other.GetTransform().position);
+            float dist = Vector3.Distance(collider2d.bounds.center, other.GetTransform().position);
             if (dist < minDistance)
             {
                 minDistance = dist;
@@ -73,7 +73,7 @@ public class Interactor : MonoBehaviour
 
     private bool IsInnerRange(Vector3 position)
     {
-        return Vector3.Distance(position, collider.bounds.center) <= interactionRange;
+        return Vector3.Distance(position, collider2d.bounds.center) <= interactionRange;
     }
 
     void Update()

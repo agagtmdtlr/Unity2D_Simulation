@@ -30,7 +30,7 @@ public class InteractableUI
 
 public class Interactable : MonoBehaviour
 {
-    Collider2D collider;
+    Collider2D collider2d;
     SpriteOutline outline;
     InteractEvent interaction = new InteractEvent();
     public InteractableUI interactableUI = new InteractableUI();
@@ -85,8 +85,8 @@ public class Interactable : MonoBehaviour
         }
 
         TryGetComponent(out outline);
-        TryGetComponent(out collider);
-        collider.callbackLayers = finalMask;
+        TryGetComponent(out collider2d);
+        collider2d.callbackLayers = finalMask;
     }
 
 }

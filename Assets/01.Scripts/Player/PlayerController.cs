@@ -22,8 +22,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpSpeed = 700f;
     [SerializeField] private Rigidbody2D body;
-    [SerializeField] private BoxCollider2D collider;
-    [SerializeField] private SpriteRenderer renderer;
+    [SerializeField] private BoxCollider2D collider2d;
+    [SerializeField] private SpriteRenderer renderer2d;
     [SerializeField] private bool isGrounded;
 
     [SerializeField] bool inputJump;
@@ -57,9 +57,9 @@ public class PlayerController : MonoBehaviour
         contactFilter.useLayerMask = true;
 
         TryGetComponent(out animator);
-        TryGetComponent(out renderer);
+        TryGetComponent(out renderer2d);
 
-        TryGetComponent(out collider);
+        TryGetComponent(out collider2d);
         TryGetComponent(out body);
 
         ladderDetection = GetComponentInChildren<LadderDetection>();
@@ -137,7 +137,7 @@ public class PlayerController : MonoBehaviour
 
         if (Mathf.Abs(inputX) > 0)
         {
-            renderer.flipX = inputX < 0;
+            renderer2d.flipX = inputX < 0;
         }
 
         if (inputY > 0 && AvaiableClimb())
@@ -169,7 +169,7 @@ public class PlayerController : MonoBehaviour
         // 수직 방향 입력이 발생했을때만
         if (ladderDetection.throughBound && !climbingLadder && Mathf.Abs(inputY) > 0.1f)
         {
-            RaycastHit2D hit2d = Physics2D.Raycast(collider.bounds.center, Vector2.up * Mathf.Sign(inputY), 100f, whatIsLadder);
+            RaycastHit2D hit2d = Physics2D.Raycast(collider2d.bounds.center, Vector2.up * Mathf.Sign(inputY), 100f, whatIsLadder);
             float minDistanceToLadder = 0.5f; // 너무 가까우면 무시한다.
             if (hit2d.collider != null && hit2d.distance > minDistanceToLadder)
             {
@@ -209,7 +209,7 @@ public class PlayerController : MonoBehaviour
             return true;
         }
 
-        RaycastHit2D hit2d = Physics2D.Raycast(collider.bounds.center, Vector2.up * Mathf.Sign(inputY),100f , whatIsLadder);
+        RaycastHit2D hit2d = Physics2D.Raycast(collider2d.bounds.center, Vector2.up * Mathf.Sign(inputY),100f , whatIsLadder);
         return hit2d.distance > minDistanceToLadder;
     }
 
@@ -223,12 +223,12 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("ClimbLadder", climbingLadder);
         velocity = Vector2.zero;
 
-        float height = collider.bounds.size.y;
+        float height = collider2d.bounds.size.y;
         var toppos = ladderDetection.bound.max.y + height;
         var bottompos = ladderDetection.bound.min.y + height;
 
 
-        renderer.color = Color.yellow;
+        renderer2d.color = Color.yellow;
 
         while (ContinueLadder())
         {
@@ -245,7 +245,7 @@ public class PlayerController : MonoBehaviour
         climbingLadder = false;
         animator.SetBool("ClimbLadder", climbingLadder);
 
-        renderer.color = Color.white;
+        renderer2d.color = Color.white;
 
         yield break;
     }
@@ -266,7 +266,7 @@ public class PlayerController : MonoBehaviour
 
     public IEnumerator Climb_co()
     {
-        renderer.color = Color.red;
+        renderer2d.color = Color.red;
 
 
         float platformY = climbDetection.bound.max.y + 0.1f;
@@ -275,7 +275,7 @@ public class PlayerController : MonoBehaviour
         var startPosition = body.position;
         float elapsedClimb = 0;
 
-        Vector3 destination = new Vector3(startPosition.x, platformY - collider.size.y * 0.5f, 0);
+        Vector3 destination = new Vector3(startPosition.x, platformY - collider2d.size.y * 0.5f, 0);
         Vector3 normalizedPos = new Vector3(startPosition.x, platformY, 0f);
 
         animator.SetBool("ClimbPlatform", true);
@@ -293,7 +293,7 @@ public class PlayerController : MonoBehaviour
         climbingPlatform = false;
         animator.SetBool("ClimbPlatform", false);
 
-        renderer.color = Color.white;
+        renderer2d.color = Color.white;
 
         yield break;
     }
@@ -306,7 +306,7 @@ public class PlayerController : MonoBehaviour
         var startPosition = body.position;
         Vector3 normalizedPos = new Vector3(startPosition.x, platformY, 0f);
         body.position = normalizedPos;
-        renderer.color = Color.white;
+        renderer2d.color = Color.white;
         animator.SetBool("ClimbPlatform", false);
 
 
@@ -315,7 +315,7 @@ public class PlayerController : MonoBehaviour
     public void StartClimb()
     {
         velocity = Vector2.zero;
-        renderer.color = Color.red;
+        renderer2d.color = Color.red;
         var startPosition = body.position;
         float platformY = climbDetection.bound.max.y;
         platformY -= 1.323772f; // 하 이거 하드코딩해야되나 ㅠㅠ
@@ -342,8 +342,8 @@ public class PlayerController : MonoBehaviour
         if(body)
             Gizmos.DrawWireSphere(body.position, 0.1f);
         Gizmos.color = Color.green;
-        if(collider)
-            Gizmos.DrawWireSphere(collider.bounds.center, 0.1f);
+        if(collider2d)
+            Gizmos.DrawWireSphere(collider2d.bounds.center, 0.1f);
 
 
     }
