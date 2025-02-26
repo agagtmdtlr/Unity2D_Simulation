@@ -5,14 +5,34 @@ using UnityEngine;
 
 public class Interactor : MonoBehaviour
 {
-    Collider2D bodyCollider;
+    Collider2D collider;
     public float interactionRange = 1.0f;
     [SerializeField] private LayerMask whatIsInteractable;
     List<Interactable> founditeractables = new List<Interactable>();
 
+    InteractableUI interactionUI;
+    Interactable closestInteractable;
+    Interactable Interacted;
+
     private void Awake()
     {
-        TryGetComponent(out bodyCollider);
+        TryGetComponent(out collider);
+
+        // create Interaction trigger volume for Interactor;
+        {
+            GameObject interactorTriggerVolume = new GameObject();
+            interactorTriggerVolume.name = "InteractorTriggerVolume";
+            interactorTriggerVolume.layer = gameObject.layer;
+            
+            interactorTriggerVolume.transform.SetParent(this.transform);
+            interactorTriggerVolume.transform.localPosition = (collider.bounds.center - transform.position);
+
+            CircleCollider2D volume = interactorTriggerVolume.AddComponent<CircleCollider2D>();
+            volume.radius = interactionRange;
+            volume.isTrigger = true;
+
+            interactorTriggerVolume.AddComponent<DebugCollider>();
+        }
     }
 
     public Interactable GetInteractableObject()
@@ -22,7 +42,7 @@ public class Interactor : MonoBehaviour
         {
             Collider2D[] colliders =
                 Physics2D.OverlapCircleAll(
-                    bodyCollider.bounds.center,
+                    collider.bounds.center,
                     interactionRange,
                     whatIsInteractable);
 
@@ -30,7 +50,6 @@ public class Interactor : MonoBehaviour
             {
                 if (other.TryGetComponent(out Interactable interactable))
                 {
-                    interactable.OnStayInteractor();
                     founditeractables.Add(interactable);
                 }
             }
@@ -41,7 +60,7 @@ public class Interactor : MonoBehaviour
         float minDistance = Mathf.Infinity;
         foreach (Interactable other in founditeractables)
         {
-            float dist = Vector3.Distance(bodyCollider.bounds.center, other.GetTransform().position);
+            float dist = Vector3.Distance(collider.bounds.center, other.GetTransform().position);
             if (dist < minDistance)
             {
                 minDistance = dist;
@@ -50,29 +69,51 @@ public class Interactor : MonoBehaviour
         }
 
         return target;
+    }
 
+    private bool IsInnerRange(Vector3 position)
+    {
+        return Vector3.Distance(position, collider.bounds.center) <= interactionRange;
     }
 
     void Update()
     {
         Interactable interactable = GetInteractableObject();
-        // if interact clicked then find interactable objects
-        if (Input.GetKeyDown(KeyCode.E))
+        // 상화작용한 대상이 존재한다면? 범위를 벗어났다면 상호작용 안함
+        if(Interacted != null && !IsInnerRange(Interacted.transform.position))
         {
-            if(interactable != null)
+            Interacted.FocusOut();
+            Interacted = null;
+        }
+
+        // 상호작용 중이 아니라면...
+        if (Interacted == null && closestInteractable != interactable)
+        {
+
+            if (closestInteractable != null )
             {
-                interactable.Interact(gameObject);
+                closestInteractable.FocusOut();
+            }
+
+            closestInteractable = interactable;
+            if(closestInteractable != null)
+            {
+                closestInteractable.FocusIn();
             }
         }
 
+        // if interact clicked then find interactable objects
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            if(closestInteractable != null && Interacted != closestInteractable)
+            {
+                closestInteractable.CallInteract(this);
+                Interacted = closestInteractable;
+            }
+        }
     }
 
     private void OnDrawGizmos()
     {
-        if (bodyCollider)
-        {
-            Gizmos.color = Color.magenta;
-            Gizmos.DrawWireSphere(bodyCollider.bounds.center, interactionRange);
-        }
     }
 }

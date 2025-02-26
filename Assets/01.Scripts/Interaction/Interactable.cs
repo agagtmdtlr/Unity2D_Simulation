@@ -1,56 +1,92 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
+
+
+public class InteractEvent
+{
+    public delegate void InteractHandler();
+    public event InteractHandler HasInteracted; // 
+    public void CallInteractEvent() => HasInteracted?.Invoke();
+}
+
+public class InteractableUI
+{
+    private GameObject _ui;
+    public GameObject UI
+    {
+        get { return _ui; }
+        set
+        {
+            if(_ui != null)
+            {
+                _ui.SetActive(false);
+            }
+            _ui = value;
+        }
+    }
+}
 
 public class Interactable : MonoBehaviour
 {
-    SpriteRenderer render;
+    Collider2D collider;
     SpriteOutline outline;
-    bool InputInteract;
-    float interactInnerTime = 0;
+    InteractEvent interaction = new InteractEvent();
+    public InteractableUI interactableUI = new InteractableUI();
 
-    public virtual void Interact(GameObject executer)
+    [SerializeField] LayerMask[] whatIsInteractor;
+
+    public InteractEvent Interact
     {
+        get
+        {
+            if (interaction == null) interaction = new InteractEvent();
+            return interaction;
+        }
+    }
+    Interactor _interactor;
+    public Interactor interactor
+    {
+        get { return _interactor; }
     }
 
-    public virtual GameObject GetIneractUI()
+    public void FocusIn()
     {
-        return null;
+        outline.UpdateOutline(true);
+
+    }
+
+    public void FocusOut()
+    {
+        outline.UpdateOutline(false);
+        interactableUI.UI.SetActive(false);
+
+    }
+
+    public InteractableUI CallInteract(Interactor interactor)
+    {
+        this._interactor = interactor;
+        interaction.CallInteractEvent();
+        return interactableUI;
     }
 
     public Transform GetTransform()
     {
         return gameObject.transform;
     }
-
-    protected virtual void Start()
+    private void Awake()
     {
-        TryGetComponent(out render);
-        TryGetComponent(out outline);
+        LayerMask finalMask = 0;
 
-    }
-
-    public virtual void OnStayInteractor()
-    {
-        interactInnerTime = 1.0f;
-    }
-
-    public virtual void OnExitInteractor()
-    {        
-    }
-
-    private void FixedUpdate()
-    {
-        InputInteract = Input.GetKey(KeyCode.E);
-    }
-
-    protected virtual void Update()
-    {
-        if(interactInnerTime > 0.0f)
+        foreach(var layer in whatIsInteractor)
         {
-            interactInnerTime -= Time.deltaTime; 
+            finalMask |= layer;
         }
-        outline.UpdateOutline(interactInnerTime > 0.0f);
+
+        TryGetComponent(out outline);
+        TryGetComponent(out collider);
+        collider.callbackLayers = finalMask;
     }
-    
+
 }
