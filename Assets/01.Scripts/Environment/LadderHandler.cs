@@ -16,7 +16,6 @@ public class LadderHandler : MonoBehaviour
 
         top.position = new Vector2( transform.position.x , transform.position.y + renderer2d.size.y);
         bottom.position = new Vector2( transform.position.x , transform.position.y);
-
     }
 
     // Update is called once per frame

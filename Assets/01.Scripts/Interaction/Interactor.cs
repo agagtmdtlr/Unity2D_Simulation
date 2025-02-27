@@ -10,29 +10,14 @@ public class Interactor : MonoBehaviour
     [SerializeField] private LayerMask whatIsInteractable;
     List<Interactable> founditeractables = new List<Interactable>();
 
+    [SerializeField] GameObject interationBubbleUI;
     InteractableUI interactionUI;
     Interactable closestInteractable;
     Interactable Interacted;
 
     private void Awake()
     {
-        TryGetComponent(out collider2d);
-
-        // create Interaction trigger volume for Interactor;
-        {
-            GameObject interactorTriggerVolume = new GameObject();
-            interactorTriggerVolume.name = "InteractorTriggerVolume";
-            interactorTriggerVolume.layer = gameObject.layer;
-            
-            interactorTriggerVolume.transform.SetParent(this.transform);
-            interactorTriggerVolume.transform.localPosition = (collider2d.bounds.center - transform.position);
-
-            CircleCollider2D volume = interactorTriggerVolume.AddComponent<CircleCollider2D>();
-            volume.radius = interactionRange;
-            volume.isTrigger = true;
-
-            interactorTriggerVolume.AddComponent<DebugCollider>();
-        }
+        TryGetComponent(out collider2d);       
     }
 
     public Interactable GetInteractableObject()
@@ -115,5 +100,10 @@ public class Interactor : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        if(collider2d)
+        {
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawWireSphere(collider2d.bounds.center, interactionRange);
+        }
     }
 }

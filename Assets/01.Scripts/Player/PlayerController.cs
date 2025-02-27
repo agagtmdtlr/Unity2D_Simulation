@@ -29,16 +29,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] bool inputJump;
 
     [Header("Climb Info")]
-    [SerializeField] private bool climbingPlatform;
     [SerializeField] private ClimbDetection climbDetection;
+    [SerializeField] private float climbBeginPosYOffset = 0.0f;
+    [SerializeField] private float climbEndPosYOffset = 0.0f;
 
     [Header("Ladder Info")]
-    private bool climbingLadder;
     [SerializeField] LadderDetection ladderDetection;
     [SerializeField] LayerMask whatIsLadder;
-
-    [SerializeField] private Vector2 velocity;
-    [SerializeField] protected Vector2 groundNormal;
     float minDistanceToLadder = 0.5f;
 
     protected ContactFilter2D contactFilter;
@@ -49,8 +46,12 @@ public class PlayerController : MonoBehaviour
 
     float inputX;
     float inputY;
-    // Start is called before the first frame update
-    void Start()
+    float inputX_Abs;
+    float inputY_Abs;
+
+    public bool inputLocked = false;
+
+    private void Start()
     {
         contactFilter.useTriggers = false;
         contactFilter.SetLayerMask(Physics2D.GetLayerCollisionMask(gameObject.layer));
@@ -68,106 +69,83 @@ public class PlayerController : MonoBehaviour
         isGrounded = false;
     }
 
-    
-
-    private void FixedUpdate()
+    private void Update()
     {
-        
-
-        
-        float axisY_abs = Mathf.Abs(inputY);
-        float axisX_abs = Mathf.Abs(inputX);
-
-        if (climbingPlatform || climbingLadder)
+        if(!inputLocked)
         {
-            return;
+            inputY = Input.GetAxisRaw("Vertical");
+            inputX = Input.GetAxisRaw("Horizontal");
+            inputY_Abs = Mathf.Abs(inputY);
+            inputX_Abs = Mathf.Abs(inputX);
+
+            animator.SetBool("isGrounded", isGrounded);
+            animator.SetFloat("JumpSpeed", inputY);
+            animator.SetFloat("GroundSpeed", Mathf.Abs(inputX));
+            animator.SetFloat("dir_y", inputY); 
         }
 
-        velocity.x = inputX * moveSpeed;
-
-
-        if (!isGrounded)
+        if (body.isKinematic)
         {
-            velocity += Physics2D.gravity * Time.deltaTime;
         }
-
-        //body.position = body.position + velocity * Time.deltaTime;
-        var deltaPosition = velocity * Time.deltaTime;
-        var moveAlongGround = new Vector2(groundNormal.y, -groundNormal.x);
-        var move = moveAlongGround * deltaPosition.x;
-
-        body.position = deltaPosition + body.position;
-    }
-
-    
-    void Update()
-    {
-        inputY = Input.GetAxisRaw("Vertical");
-        inputX = Input.GetAxisRaw("Horizontal");
-        
-
-        animator.SetBool("isGrounded", isGrounded);
-        animator.SetFloat("JumpSpeed", velocity.y);
-        animator.SetFloat("GroundSpeed", Mathf.Abs(inputX));
-        animator.SetFloat("dir_y", inputY);
-
-        
-
-        if (climbingPlatform || climbingLadder)
+        else
         {
-            return;
-        }
+            Vector2 velocity = body.velocity;
+            velocity.x = inputX * moveSpeed;
 
-        bool inputJump = Input.GetKeyDown(KeyCode.Space);
-        if (inputJump)
-        {
-            if (isGrounded.Equals(false))
+            bool inputJump = Input.GetKeyDown(KeyCode.Space);
+            if (inputJump)
             {
-                velocity.y = 0f;
-                animator.SetTrigger("DoubleJump");
+                if (isGrounded.Equals(false))
+                {
+                    velocity.y = 0f;
+                    animator.SetTrigger("DoubleJump");
+                }
+
+                velocity.y = jumpSpeed;
             }
 
-            velocity.y = jumpSpeed;
-        }
+            if (Input.GetKeyUp(KeyCode.Space) && velocity.y > 0)
+            {
+                velocity.y = velocity.y * 0.5f;
+            }
 
-        if (Input.GetKeyUp(KeyCode.Space) && velocity.y > 0)
-        {
-            velocity.y = velocity.y * 0.5f;
-        }
+            if (Mathf.Abs(inputX) > 0)
+            {
+                renderer2d.flipX = inputX < 0;
+            }
 
-        if (Mathf.Abs(inputX) > 0)
-        {
-            renderer2d.flipX = inputX < 0;
-        }
+            if (inputY > 0 && AvaiableClimb())
+            {
+                StartClimb();
+                return;
+            }
 
-        if (inputY > 0 && AvaiableClimb())
-        {
-            StartClimb();
-        }
+            if (AvaibaleLadder())
+            {
+                StartLadder();
+                return;
+            }
 
-        if(AvaibaleLadder())
-        {
-            StartLadder();
+            body.velocity = velocity;
         }
     }
 
-    bool AvaiableClimb()
+    private bool AvaiableClimb()
     {
-        
-
-        if (climbDetection.throungBound && !climbingPlatform)
+        if (climbDetection.throungBound)
         {
             return true;
         }
         return false;
     }
 
-    bool AvaibaleLadder()
+    private bool AvaibaleLadder()
     {
         // 사다리 타는 중이 아니고
         // 사다리가 가까이 있고
         // 수직 방향 입력이 발생했을때만
-        if (ladderDetection.throughBound && !climbingLadder && Mathf.Abs(inputY) > 0.1f)
+        //if (ladderDetection.throughBound && !climbingLadder && Mathf.Abs(inputY) > 0.1f)
+        if (ladderDetection.throughBound && Mathf.Abs(inputY) > 0.1f)
         {
             RaycastHit2D hit2d = Physics2D.Raycast(collider2d.bounds.center, Vector2.up * Mathf.Sign(inputY), 100f, whatIsLadder);
             float minDistanceToLadder = 0.5f; // 너무 가까우면 무시한다.
@@ -182,26 +160,16 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if(collision.collider.CompareTag("Platform") && collision.contacts[0].normal.y > 0.7f)
-        {
-            isGrounded = true;
-            velocity.y = 0;
-            animator.SetBool("isGrounded", isGrounded);
-        }
+        isGrounded = true;
 
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        if (collision.collider.CompareTag("Platform"))
-        {
-            isGrounded = false;
-            animator.SetBool("isGrounded", isGrounded);
-        }
+        isGrounded = false;
     }
 
-
-    bool ContinueLadder()
+    private bool ContinueLadder()
     {
         float yabs = Mathf.Abs(inputY);
         if(yabs < 0.1f)
@@ -213,15 +181,13 @@ public class PlayerController : MonoBehaviour
         return hit2d.distance > minDistanceToLadder;
     }
 
-    public IEnumerator Ladder_co()
+    private IEnumerator ClimbingLadder_co()
     {
         float start_x = ladderDetection.bound.center.x;
         var startPos = body.position;
         startPos.x = ladderDetection.bound.center.x;
-        //startPos.y = Mathf.Clamp(startPos.y, ladderDetection.bound.min.y + 0.1f, ladderDetection.bound.max.y - 0.1f);
         body.position = startPos;
-        animator.SetBool("ClimbLadder", climbingLadder);
-        velocity = Vector2.zero;
+        animator.SetBool("ClimbLadder", true);
 
         float height = collider2d.bounds.size.y;
         var toppos = ladderDetection.bound.max.y + height;
@@ -237,103 +203,74 @@ public class PlayerController : MonoBehaviour
 
             yield return null;
         }
+        EndLadder();
+        yield break;
+    }
 
+    private void EndLadder()
+    {
         var endpos = body.position;
-        //endpos.y += 0.1f;
         body.position = endpos;
+        body.isKinematic = false;
 
-        climbingLadder = false;
-        animator.SetBool("ClimbLadder", climbingLadder);
+
+        animator.SetBool("ClimbLadder", false);
 
         renderer2d.color = Color.white;
-
-        yield break;
     }
 
-    float Half(float y)
+    private void StartLadder()
     {
-        return y;
-    }
-
-    public void StartLadder()
-    {
+        body.velocity = Vector2.zero;
+        body.isKinematic = true;
         Debug.Log("Start Ladder");
-        climbingLadder = true;
+        //climbingLadder = true;
         ladderDetection.throughBound = false;
-        StopCoroutine("Ladder_co");
-        StartCoroutine("Ladder_co");
+        StopCoroutine("ClimbingLadder_co");
+        StartCoroutine("ClimbingLadder_co");
     }
 
-    public IEnumerator Climb_co()
+    private void StartClimb()
     {
-        renderer2d.color = Color.red;
+        body.velocity = Vector2.zero;
+        body.isKinematic = true;
 
-
-        float platformY = climbDetection.bound.max.y + 0.1f;
-        velocity = Vector2.zero;
-        // start position
-        var startPosition = body.position;
-        float elapsedClimb = 0;
-
-        Vector3 destination = new Vector3(startPosition.x, platformY - collider2d.size.y * 0.5f, 0);
-        Vector3 normalizedPos = new Vector3(startPosition.x, platformY, 0f);
-
-        animator.SetBool("ClimbPlatform", true);
-        float climbMaxTime = 0.5f;
-
-        while (elapsedClimb < climbMaxTime)
-        {
-            elapsedClimb += Time.deltaTime;
-            float range = elapsedClimb / climbMaxTime;
-            body.position = Vector3.Lerp(startPosition, destination, range);
-            yield return null;
-        }
-
-        body.position = normalizedPos;
-        climbingPlatform = false;
-        animator.SetBool("ClimbPlatform", false);
-
-        renderer2d.color = Color.white;
-
-        yield break;
-    }
-
-    public void OnClimbFinished()
-    {
-        isGrounded = true;
-        climbingPlatform = false;
-        float platformY = climbDetection.bound.max.y;
-        var startPosition = body.position;
-        Vector3 normalizedPos = new Vector3(startPosition.x, platformY, 0f);
-        body.position = normalizedPos;
-        renderer2d.color = Color.white;
-        animator.SetBool("ClimbPlatform", false);
-
-
-    }
-
-    public void StartClimb()
-    {
-        velocity = Vector2.zero;
-        renderer2d.color = Color.red;
+        // set climb start position with offset Y
         var startPosition = body.position;
         float platformY = climbDetection.bound.max.y;
-        platformY -= 1.323772f; // 하 이거 하드코딩해야되나 ㅠㅠ
+        platformY += climbBeginPosYOffset;
         startPosition.y = platformY;
         body.position = startPosition;
 
-        climbingPlatform = true;
         climbDetection.throungBound = false;
         animator.SetBool("ClimbPlatform", true);
-        //StopCoroutine("Climb_co");
-        //StartCoroutine("Climb_co");
+
+        // set debug anim color
+        renderer2d.color = Color.red;
 
     }
 
 
+    private void EndClimb()
+    {
+        body.isKinematic = false;
+
+        // set climb end position with offset Y
+        float platformY = climbDetection.bound.max.y;
+        Vector3 endPosition= new Vector3(body.position.x, platformY + climbEndPosYOffset, 0f);
+        
+        body.position = endPosition;
+
+        animator.SetBool("ClimbPlatform", false);
+
+        renderer2d.color = Color.white;
+
+    }
+
     private void OnGUI()
     {
-        DebugTextManager.Write($"Velocity {velocity}");
+        if(body)
+            DebugTextManager.Write($"Velocity {body.velocity}");
     }
 
     private void OnDrawGizmos()

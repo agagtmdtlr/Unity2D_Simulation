@@ -333,7 +333,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_10
+      name: wood
       rect:
         serializedVersion: 2
         x: 1327
@@ -354,7 +354,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_12
+      name: vegetable
       rect:
         serializedVersion: 2
         x: 1615
@@ -2538,7 +2538,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_142
+      name: fish
       rect:
         serializedVersion: 2
         x: 1731
@@ -3210,7 +3210,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_181
+      name: wood_2
       rect:
         serializedVersion: 2
         x: 1855
@@ -3525,7 +3525,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_200
+      name: stone
       rect:
         serializedVersion: 2
         x: 1844
@@ -4814,7 +4814,7 @@ TextureImporter:
         width: 111
         height: 134
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -4837,9 +4837,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
+      fish: -133061326
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_0: 1271129496
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_1: -1403079660
-      sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_10: -1615048687
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_100: -1636172840
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_101: 1528154908
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_102: -1096171191
@@ -4861,7 +4861,6 @@ TextureImporter:
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_117: 1364816215
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_118: -166745421
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_119: 2064457372
-      sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_12: 621722181
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_120: 126649534
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_121: 249986525
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_122: -1585868536
@@ -4886,7 +4885,6 @@ TextureImporter:
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_14: -483836799
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_140: 1816476080
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_141: 575550287
-      sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_142: -133061326
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_143: -1870636086
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_144: -59838657
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_145: -1082466603
@@ -4929,7 +4927,6 @@ TextureImporter:
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_179: -1613902731
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_18: 1817300547
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_180: -1508399080
-      sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_181: 1521959722
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_182: -190885647
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_183: -806031023
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_184: 2114432007
@@ -4951,7 +4948,6 @@ TextureImporter:
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_199: -1402944542
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_2: -422230967
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_20: -1392248641
-      sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_200: -1015946266
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_201: -1431380030
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_202: 1571021911
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_203: -523206681
@@ -5109,6 +5105,10 @@ TextureImporter:
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_97: -44922953
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_98: -623320962
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_99: -1910093460
+      stone: -1015946266
+      vegetable: 621722181
+      wood: -1615048687
+      wood_2: 1521959722
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

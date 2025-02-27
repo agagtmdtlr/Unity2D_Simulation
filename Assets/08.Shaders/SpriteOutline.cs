@@ -11,10 +11,10 @@ public class SpriteOutline : MonoBehaviour
 
     private SpriteRenderer spriteRenderer;
 
+
     void OnEnable()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
-
         UpdateOutline(false);
     }
 

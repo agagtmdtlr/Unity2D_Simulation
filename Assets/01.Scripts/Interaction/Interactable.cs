@@ -28,14 +28,17 @@ public class InteractableUI
     }
 }
 
+
 public class Interactable : MonoBehaviour
 {
     Collider2D collider2d;
-    SpriteOutline outline;
     InteractEvent interaction = new InteractEvent();
     public InteractableUI interactableUI = new InteractableUI();
 
     [SerializeField] LayerMask[] whatIsInteractor;
+
+    private SpriteRenderer spriteRenderer;
+    private IToggle toggle = null;
 
     public InteractEvent Interact
     {
@@ -53,14 +56,17 @@ public class Interactable : MonoBehaviour
 
     public void FocusIn()
     {
-        outline.UpdateOutline(true);
-
+        if (toggle != null)
+            toggle.FocusIn();       
     }
 
     public void FocusOut()
     {
-        outline.UpdateOutline(false);
-        interactableUI.UI.SetActive(false);
+        if (toggle != null)
+            toggle.FocusOut();
+
+        if(interactableUI.UI)
+            interactableUI.UI.SetActive(false);
 
     }
 
@@ -84,9 +90,11 @@ public class Interactable : MonoBehaviour
             finalMask |= layer;
         }
 
-        TryGetComponent(out outline);
         TryGetComponent(out collider2d);
+        TryGetComponent(out spriteRenderer);
         collider2d.callbackLayers = finalMask;
+
+        TryGetComponent(out toggle);
     }
 
 }
