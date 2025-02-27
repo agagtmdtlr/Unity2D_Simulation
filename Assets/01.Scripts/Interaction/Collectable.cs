@@ -21,7 +21,7 @@ public class Collectable : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if( collision.TryGetComponent(out InventoryHandler inventory) )
+        if( collision.TryGetComponent(out InventoryController inventory) )
         {
             inventory.AquireItem(item);
             Destroy(gameObject);

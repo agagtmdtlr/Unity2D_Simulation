@@ -93,7 +93,7 @@ public class PlayerController : MonoBehaviour
             velocity.x = inputX * moveSpeed;
 
             bool inputJump = Input.GetKeyDown(KeyCode.Space);
-            if (inputJump)
+            if (inputJump && inputY >= 0f)
             {
                 if (isGrounded.Equals(false))
                 {
@@ -160,7 +160,8 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        isGrounded = true;
+        if (collision.contacts[0].normal.y > 0.7f)
+            isGrounded = true;
 
     }
 

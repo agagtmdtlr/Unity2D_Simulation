@@ -4,6 +4,17 @@ using UnityEngine;
 using UnityEngine.Events;
 
 
+public enum InteractConsumeTime
+{
+    Immediate,
+    Manual
+}
+public enum InteractConsumeLife
+{
+    Once,
+    ReUsable
+}
+
 public class InteractEvent
 {
     public delegate void InteractHandler();
@@ -11,35 +22,20 @@ public class InteractEvent
     public void CallInteractEvent() => HasInteracted?.Invoke();
 }
 
-public class InteractableUI
-{
-    private GameObject _ui;
-    public GameObject UI
-    {
-        get { return _ui; }
-        set
-        {
-            if(_ui != null)
-            {
-                _ui.SetActive(false);
-            }
-            _ui = value;
-        }
-    }
-}
-
-
 public class Interactable : MonoBehaviour
 {
+    [HideInInspector]
+    public bool consumed { get; private set; } = false;
+    [SerializeField] private InteractConsumeLife consumeType;
+    [SerializeField] private InteractConsumeTime consumedTime;
+    public InteractConsumeTime ConsumeTime { get; private set; }
+    [SerializeField] private IToggle toggle = new IToggleDefault();
+    [SerializeField] private LayerMask[] whatIsInteractor;
+
     Collider2D collider2d;
-    InteractEvent interaction = new InteractEvent();
-    public InteractableUI interactableUI = new InteractableUI();
 
-    [SerializeField] LayerMask[] whatIsInteractor;
 
-    private SpriteRenderer spriteRenderer;
-    private IToggle toggle = null;
-
+    protected InteractEvent interaction = new InteractEvent();
     public InteractEvent Interact
     {
         get
@@ -48,40 +44,37 @@ public class Interactable : MonoBehaviour
             return interaction;
         }
     }
-    Interactor _interactor;
+
+    private Interactor _interactor;
     public Interactor interactor
     {
         get { return _interactor; }
     }
 
+    public virtual void CallInteract(Interactor interactor)
+    {
+        if(consumed) 
+            return;
+
+        if(consumeType == InteractConsumeLife.Once) 
+            consumed = true;
+
+        this._interactor = interactor;
+        interaction.CallInteractEvent();
+    }
+
+
     public void FocusIn()
     {
-        if (toggle != null)
-            toggle.FocusIn();       
+        toggle.FocusIn();
     }
 
     public void FocusOut()
     {
-        if (toggle != null)
-            toggle.FocusOut();
-
-        if(interactableUI.UI)
-            interactableUI.UI.SetActive(false);
-
+        toggle.FocusOut();
     }
 
-    public InteractableUI CallInteract(Interactor interactor)
-    {
-        this._interactor = interactor;
-        interaction.CallInteractEvent();
-        return interactableUI;
-    }
-
-    public Transform GetTransform()
-    {
-        return gameObject.transform;
-    }
-    private void Awake()
+    protected virtual void Awake()
     {
         LayerMask finalMask = 0;
 
@@ -91,10 +84,11 @@ public class Interactable : MonoBehaviour
         }
 
         TryGetComponent(out collider2d);
-        TryGetComponent(out spriteRenderer);
         collider2d.callbackLayers = finalMask;
-
-        TryGetComponent(out toggle);
     }
 
+    private void OnEnable()
+    {
+        consumed = false;        
+    }
 }

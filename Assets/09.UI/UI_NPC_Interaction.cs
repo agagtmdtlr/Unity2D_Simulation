@@ -6,22 +6,32 @@ using UnityEngine.UI;
 
 public class UI_NPC_Interaction : MonoBehaviour
 {
-    [SerializeField] Image panel;
-
-    UnityAction[] selectEvents = new UnityAction[choiceCnt];
-    public const int choiceCnt = 5;
+    RectTransform rt;
+    private UnityAction[] selectEvents;
+    public int choiceCnt { get; private set; }
+    public Vector3 showWorldPosiiton;
 
     // Start is called before the first frame update
     void Awake()
     {
-        TryGetComponent(out panel);
-        var childCnt = transform.childCount;
-        for(int i = 0; i < choiceCnt; i++)
-        {
-
-        }
+        choiceCnt = transform.childCount;
+        selectEvents = new UnityAction[choiceCnt];
+        TryGetComponent(out RectTransform rt);
     }
 
+    private void OnEnable()
+    {
+        rt.position = Camera.main.WorldToScreenPoint(showWorldPosiiton);
+    }
+
+    private void Update()
+    {
+        if( Input.GetKeyDown(KeyCode.Escape))
+        {
+            gameObject.SetActive(false);
+        }
+
+    }
 
     public void BindSelectEvent(int index, UnityAction action)
     {
@@ -34,10 +44,4 @@ public class UI_NPC_Interaction : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

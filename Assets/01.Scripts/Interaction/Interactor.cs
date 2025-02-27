@@ -10,8 +10,6 @@ public class Interactor : MonoBehaviour
     [SerializeField] private LayerMask whatIsInteractable;
     List<Interactable> founditeractables = new List<Interactable>();
 
-    [SerializeField] GameObject interationBubbleUI;
-    InteractableUI interactionUI;
     Interactable closestInteractable;
     Interactable Interacted;
 
@@ -33,10 +31,17 @@ public class Interactor : MonoBehaviour
 
             foreach (Collider2D other in colliders)
             {
-                if (other.TryGetComponent(out Interactable interactable))
+                if(other.TryGetComponent(out Interactable interaciton))
                 {
-                    founditeractables.Add(interactable);
-                }
+                    if(!interaciton.consumed)
+                    {
+                        if(interaciton.ConsumeTime == InteractConsumeTime.Immediate)
+                            interaciton.CallInteract(this);
+                        else
+                            founditeractables.Add(interaciton);
+
+                    }
+                }    
             }
         }
 
@@ -45,7 +50,7 @@ public class Interactor : MonoBehaviour
         float minDistance = Mathf.Infinity;
         foreach (Interactable other in founditeractables)
         {
-            float dist = Vector3.Distance(collider2d.bounds.center, other.GetTransform().position);
+            float dist = Vector3.Distance(collider2d.bounds.center, other.transform.position);
             if (dist < minDistance)
             {
                 minDistance = dist;

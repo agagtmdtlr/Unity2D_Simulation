@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,9 +22,7 @@ public class NPCInteractable : MonoBehaviour
         TryGetComponent(out box);
         TryGetComponent(out interaction);
 
-        interaction.interactableUI.UI = npc_choice_ui.gameObject;
         bubble_chat_text = bubble_chat_ui.transform.GetComponentInChildren<Text>();
-
     }
 
     private void Update()
@@ -39,15 +38,10 @@ public class NPCInteractable : MonoBehaviour
 
     public void OpenNpcInteractSelector()
     {
-        if( npc_choice_ui.transform.TryGetComponent(out RectTransform rt) )
+        if( interaction.interactor.TryGetComponent(out NPCInteractController interactController) )
         {
-            rt.position = Camera.main.WorldToScreenPoint(box.bounds.center + Vector3.up * box.bounds.size.y);
+            interactController.StartNpcInteractMode(this);
         }
-
-        interaction.interactableUI.UI = npc_choice_ui.gameObject;
-
-        npc_choice_ui.BindSelectEvent(2, BeginDialogue);
-        npc_choice_ui.gameObject.SetActive(true);
     }
 
     private void BeginDialogue()
@@ -58,7 +52,6 @@ public class NPCInteractable : MonoBehaviour
         {
             rt.position = Camera.main.WorldToScreenPoint(box.bounds.center + Vector3.up * box.bounds.size.y);
         }
-        interaction.interactableUI.UI = bubble_chat_ui;
         bubble_chat_ui.gameObject.SetActive(true);
 
         StopCoroutine("Typing");

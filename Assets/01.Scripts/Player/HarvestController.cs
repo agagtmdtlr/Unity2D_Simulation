@@ -44,7 +44,7 @@ public class HarvestController : MonoBehaviour
     public void StartHarvestMode(Harvestable harvestable)
     {
         this.harvestable = harvestable;
-        //playerController.inputLocked = true;
+        playerController.inputLocked = true;
         body.isKinematic = true;
         isHarvesting = true;
         chargeGage = 0f;
@@ -54,16 +54,11 @@ public class HarvestController : MonoBehaviour
 
     public void EndHarvestMode()
     {
-        //playerController.inputLocked = false;
+        playerController.inputLocked = false;
         body.isKinematic = false;
         isHarvesting = false;
         chargeGage = 0f;
 
         animator.SetBool("Harvest", false);
-
     }
-
-
-
-
 }
