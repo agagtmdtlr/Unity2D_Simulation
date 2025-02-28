@@ -4,28 +4,24 @@ using UnityEngine;
 
 public class Collectable : MonoBehaviour
 {
-    [SerializeField] ItemSlot item;
-    SpriteRenderer spriteRenderer;
+    public ItemSlot item;
+    public SpriteRenderer spriteRenderer;
+    Interactable interactable;
 
     private void Awake()
     {
         TryGetComponent(out spriteRenderer);
+        TryGetComponent(out interactable);
         spriteRenderer.sprite = item.itemInformation.icon;
     }
 
-    private void OnDrawGizmos()
+    public void OnColleted()
     {
-        Gizmos.color = Color.green;
-    }
-
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if( collision.TryGetComponent(out InventoryController inventory) )
+        if (interactable.interactor.TryGetComponent(out InventoryController inventory))
         {
             inventory.AquireItem(item);
             Destroy(gameObject);
         }
-
     }
+
 }

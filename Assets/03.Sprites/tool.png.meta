@@ -130,6 +130,27 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: tool_pickax
+      rect:
+        serializedVersion: 2
+        x: 944
+        y: 3175
+        width: 166
+        height: 231
+      alignment: 6
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 412bb7e09166f624f8907ec278605d01
+      internalID: 1413096057
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -141,6 +162,7 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
+      tool_pickax: 1413096057
       tool_wood: 1556949019
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0

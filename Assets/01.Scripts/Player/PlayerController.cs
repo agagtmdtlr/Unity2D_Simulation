@@ -82,6 +82,7 @@ public class PlayerController : MonoBehaviour
             animator.SetFloat("JumpSpeed", inputY);
             animator.SetFloat("GroundSpeed", Mathf.Abs(inputX));
             animator.SetFloat("dir_y", inputY); 
+            animator.SetFloat("dir_x", inputX); 
         }
 
         if (body.isKinematic)
@@ -224,7 +225,6 @@ public class PlayerController : MonoBehaviour
     {
         body.velocity = Vector2.zero;
         body.isKinematic = true;
-        Debug.Log("Start Ladder");
         //climbingLadder = true;
         ladderDetection.throughBound = false;
         StopCoroutine("ClimbingLadder_co");

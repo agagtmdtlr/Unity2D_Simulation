@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7589329405533605497}
   - component: {fileID: 7660879331111679200}
   - component: {fileID: 7102849949566127176}
+  - component: {fileID: 6423087403477762943}
   m_Layer: 0
   m_Name: Collectable
   m_TagString: Untagged
@@ -137,6 +138,7 @@ MonoBehaviour:
   item:
     itemInformation: {fileID: 11400000, guid: 4f127d8b174b56d4386b24271517ff1a, type: 2}
     itemAmount: 5
+  spriteRenderer: {fileID: 0}
 --- !u!114 &7102849949566127176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -154,3 +156,35 @@ MonoBehaviour:
   whatIsAttractable:
     serializedVersion: 2
     m_Bits: 8
+--- !u!114 &6423087403477762943
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3497768918274313729}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e405be2d1d701841be6e5530fbccd89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  consumeLife: 0
+  triggerWay: 0
+  whatIsInteractor:
+  - serializedVersion: 2
+    m_Bits: 8
+  interactEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7660879331111679200}
+        m_TargetAssemblyTypeName: Collectable, Assembly-CSharp
+        m_MethodName: OnColleted
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2

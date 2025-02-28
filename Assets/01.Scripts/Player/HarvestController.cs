@@ -13,9 +13,6 @@ public class HarvestController : MonoBehaviour
 
     bool isHarvesting = false;
 
-    float chargeGage = 0f;
-    float chargeGageMax = 100f;
-    float chargeSpeed = 5f;
 
     private void Awake()
     {
@@ -47,9 +44,6 @@ public class HarvestController : MonoBehaviour
         playerController.inputLocked = true;
         body.isKinematic = true;
         isHarvesting = true;
-        chargeGage = 0f;
-
-        animator.SetBool("Harvest", true);
     }
 
     public void EndHarvestMode()
@@ -57,8 +51,5 @@ public class HarvestController : MonoBehaviour
         playerController.inputLocked = false;
         body.isKinematic = false;
         isHarvesting = false;
-        chargeGage = 0f;
-
-        animator.SetBool("Harvest", false);
     }
 }

@@ -35,9 +35,7 @@ public class Interactor : MonoBehaviour
                 {
                     if(!interaciton.consumed)
                     {
-                        if(interaciton.ConsumeTime == InteractConsumeTime.Immediate)
-                            interaciton.CallInteract(this);
-                        else
+                        if(interaciton.TriggerWay == InteractTriggerWay.Manual)
                             founditeractables.Add(interaciton);
 
                     }
