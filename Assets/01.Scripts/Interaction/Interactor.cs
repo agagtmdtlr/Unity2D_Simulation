@@ -8,17 +8,17 @@ public class Interactor : MonoBehaviour
     Collider2D collider2d;
     public float interactionRange = 1.0f;
     [SerializeField] private LayerMask whatIsInteractable;
-    List<Interactable> founditeractables = new List<Interactable>();
+    List<Sensor> founditeractables = new List<Sensor>();
 
-    Interactable closestInteractable;
-    Interactable Interacted;
+    Sensor closestInteractable;
+    Sensor Interacted;
 
     private void Awake()
     {
         TryGetComponent(out collider2d);       
     }
 
-    public Interactable GetInteractableObject()
+    public Sensor GetInteractableObject()
     {
         founditeractables.Clear();
 
@@ -31,7 +31,7 @@ public class Interactor : MonoBehaviour
 
             foreach (Collider2D other in colliders)
             {
-                if(other.TryGetComponent(out Interactable interaciton))
+                if(other.TryGetComponent(out Sensor interaciton))
                 {
                     if(!interaciton.consumed)
                     {
@@ -44,9 +44,9 @@ public class Interactor : MonoBehaviour
         }
 
 
-        Interactable target = null;
+        Sensor target = null;
         float minDistance = Mathf.Infinity;
-        foreach (Interactable other in founditeractables)
+        foreach (Sensor other in founditeractables)
         {
             float dist = Vector3.Distance(collider2d.bounds.center, other.transform.position);
             if (dist < minDistance)
@@ -66,7 +66,7 @@ public class Interactor : MonoBehaviour
 
     void Update()
     {
-        Interactable interactable = GetInteractableObject();
+        Sensor interactable = GetInteractableObject();
         // 상화작용한 대상이 존재한다면? 범위를 벗어났다면 상호작용 안함
         if(Interacted != null && !IsInnerRange(Interacted.transform.position))
         {

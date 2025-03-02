@@ -44,3 +44,24 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Background
+    uniqueID: 3690365067
+    locked: 0
+  - name: wall
+    uniqueID: 3817837313
+    locked: 0
+  - name: Interior
+    uniqueID: 1455159855
+    locked: 0
+  - name: collectable
+    uniqueID: 1696093297
+    locked: 0
+  - name: exterior
+    uniqueID: 1997558251
+    locked: 0
+  - name: MidGround
+    uniqueID: 2447819919
+    locked: 0
+  - name: ForeGround
+    uniqueID: 461098201
+    locked: 0

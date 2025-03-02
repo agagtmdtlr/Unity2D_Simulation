@@ -5,16 +5,13 @@ using UnityEngine;
 public class FocusOutline : MonoBehaviour, IFocusAction
 {
     private SpriteRenderer spriteRenderer;
+    MaterialPropertyBlock mpb;
+    [SerializeField] Color color = Color.green;
 
-    [SerializeField] Color color = Color.red;
-    [Range(0, 16)]
-    [SerializeField] int outlineSize = 1;
-    [SerializeField] Material outlineMaterial;
-
-    public void Awake()
+    private void Awake()
     {
         TryGetComponent(out spriteRenderer);
-        spriteRenderer.material = outlineMaterial;
+        mpb = new MaterialPropertyBlock();
     }
 
     public void FocusOut()
@@ -29,11 +26,10 @@ public class FocusOutline : MonoBehaviour, IFocusAction
 
     public void UpdateOutline(bool outline)
     {
-        MaterialPropertyBlock mpb = new MaterialPropertyBlock();
         spriteRenderer.GetPropertyBlock(mpb);
-        mpb.SetFloat("_Outline", outline ? 1f : 0);
+        mpb.SetFloat("_OutlineVisible", outline ? 1f : 0);
         mpb.SetColor("_OutlineColor", color);
-        mpb.SetFloat("_OutlineSize", outlineSize);
+        //mpb.SetFloat("OutlineVisble", outlineSize);
         spriteRenderer.SetPropertyBlock(mpb);
     }
 }

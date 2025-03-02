@@ -11,7 +11,7 @@ public class NPCInteractable : MonoBehaviour
     Text bubble_chat_text;
 
     BoxCollider2D box;
-    Interactable interaction;
+    Sensor interaction;
 
     [SerializeField] Dialogue dialogue;
     int dialogueIndex = 0;

@@ -83,6 +83,7 @@ public class WoodCuttingSequencer : MonoBehaviour
         // init player position
         Vector3 startPos = col.bounds.center;
         startPos.x = target.transform.position.x + startPosXOffset;
+        startPos.y = rb.position.y;
         rb.position = startPos;
 
         progressDirection = 1;

@@ -6,7 +6,7 @@ public class Collectable : MonoBehaviour
 {
     public ItemSlot item;
     public SpriteRenderer spriteRenderer;
-    Interactable interactable;
+    Sensor interactable;
 
     private void Awake()
     {

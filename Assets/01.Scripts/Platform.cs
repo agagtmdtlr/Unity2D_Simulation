@@ -13,7 +13,7 @@ public class Platform : MonoBehaviour
 
     private void Update()
     {
-        if(isPlayer && Input.GetAxisRaw("Vertical") < 0f)
+        if(isPlayer && Input.GetAxisRaw("Vertical") < 0f && Input.GetButtonDown("Jump"))
         {
             StartCoroutine(ReversePlatform_Co());
             isPlayer = false;

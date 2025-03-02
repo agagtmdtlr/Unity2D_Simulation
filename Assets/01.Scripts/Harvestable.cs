@@ -1,24 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Harvestable : MonoBehaviour
 {
     GameObject cuttedTreeTop;
 
-    Rigidbody2D rb;
-    SpriteRenderer renderer2d;
-    Interactable interaction;
+
+    SpriteRenderer treeRenderer;
+    Sensor interaction;
     WoodCuttingSequencer sequencer;
 
-    bool isNowHarvestable;
-    float progress = 0;
+    bool consumed;
     [SerializeField] public int currentState = 0;
 
     [SerializeField] int spawnCount;
     [SerializeField] ItemStat spwanItem;
     [SerializeField] Sprite[] spritePerStages;
     [SerializeField] GameObject spawnPrefab;
+
+    bool isToolInteracting = false;
+    ParticleSystem leafEffect;
+    float effectPlayTime = 0f;
+
 
     public bool isEndState()
     {
@@ -29,42 +34,49 @@ public class Harvestable : MonoBehaviour
     {
         currentState = Mathf.Min(currentState + 1, spritePerStages.Length - 1);
 
-        renderer2d.sprite = spritePerStages[currentState];
+        treeRenderer.sprite = spritePerStages[currentState];
 
-
-        // ended
-        if(currentState == spritePerStages.Length - 1)
-        {
-            cuttedTreeTop.SetActive(true);
-        }
+         
        
     }
 
     private void Awake()
     {
-        TryGetComponent(out renderer2d);
+        TryGetComponent(out treeRenderer);
         TryGetComponent(out interaction);
         interaction.Interact.HasInteracted += BeginHarvest;
 
         cuttedTreeTop = transform.GetChild(0).gameObject;
 
         sequencer = FindAnyObjectByType<WoodCuttingSequencer>(FindObjectsInactive.Include);
+
+        leafEffect = GetComponent<ParticleSystem>();
     }
 
     private void OnEnable()
     {
-        isNowHarvestable = true;
+        consumed = false;
     }
 
     private void Update()
     {
-        // 다음단계로 넘어 갈 수 있는지
-        if(progress >= 1f)
+        float inputX = Input.GetAxisRaw("Horizontal");
+        if(isToolInteracting && Mathf.Abs(inputX) > 0f)
         {
+            effectPlayTime = 1.5f;
+            if (!leafEffect.isPlaying)
+                leafEffect.Play();
+        }
+        effectPlayTime -=  Time.deltaTime;
+
+        if( effectPlayTime < 0f)
+        {
+            leafEffect.Stop();
         }
 
+        // 다음단계로 넘어 갈 수 있는지
         // 모든 단계에 도달했는지
-        if(isNowHarvestable && isEndState())
+        if (!consumed && isEndState())
         {
             EndHarvest();
         }
@@ -72,13 +84,13 @@ public class Harvestable : MonoBehaviour
 
     void EndHarvest()
     {
-        StartCoroutine("OnHarvested_co");
+        StartCoroutine("PlayFallingTreeAnimation_Co");
     }
 
-    IEnumerator OnHarvested_co()
+    IEnumerator PlayFallingTreeAnimation_Co()
     {
         // Collectable 아이템을 스폰하고 수확불가능한 상태가 된다.
-        isNowHarvestable = false; // 나중에 하루가 지나면 초기화 된다.
+        consumed = true; // 나중에 하루가 지나면 초기화 된다.
         cuttedTreeTop.SetActive(true);
 
 
@@ -100,10 +112,25 @@ public class Harvestable : MonoBehaviour
 
     public void BeginHarvest() 
     {
-        if (!isNowHarvestable)
+        if (consumed)
             return;
 
         sequencer.OnPlaySequencer(interaction.interactor.gameObject, this);
     }
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.gameObject.layer == LayerMask.NameToLayer("Tool"))
+        {
+            isToolInteracting = true;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Tool"))
+        {
+            isToolInteracting = false;
+        }
+    }
 }
