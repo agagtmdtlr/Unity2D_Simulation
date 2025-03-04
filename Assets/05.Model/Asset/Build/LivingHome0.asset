@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0a5d14c8c8e21346a86aaf5fcb8f3e7, type: 3}
+  m_Name: LivingHome0
+  m_EditorClassIdentifier: 
+  buildname: "\uCCAB\uBC88\uC9F8\uC9D1"
+  icn: {fileID: 0}
+  buildPrefab: {fileID: 0}
+  buldMaterial:
+  - itemStat: {fileID: 11400000, guid: 82dfede8f3ebd0e43a4dacfd32c543ee, type: 2}
+    amount: 1
+  - itemStat: {fileID: 11400000, guid: ff59afa529863444ba1d7cde47af54dd, type: 2}
+    amount: 1

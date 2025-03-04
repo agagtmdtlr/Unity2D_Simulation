@@ -44,6 +44,7 @@ public class BuildingHandler : MonoBehaviour
     [HideInInspector] public GameObject buildModeUI;
 
 
+    UI_ConstructMode_Handler contruct_ui;
 
     public GameObject CreateCurrentPrefabInstance(Vector3Int pos)
     {
@@ -60,17 +61,39 @@ public class BuildingHandler : MonoBehaviour
         return prefabinstance;
     }
 
+    public void ReserveUpdateProceduralLadder()
+    {
+        StopCoroutine("UpdateAllProceduralLadder");
+        StartCoroutine("UpdateAllProceduralLadder");
+    }
 
+    public IEnumerator UpdateAllProceduralLadder()
+    {
+        // collider 정보가 업데이트 된 후 수행되어야 한다.
+        yield return new WaitForFixedUpdate();
+        for (int i = 0; i < buildings.Count; i++)
+        {
+            UpdateProceduralLadder(buildings[i]);
+        }
+    }
 
-    // TODO 절차상의 빌딩 구조물 생성
-    public void UpdateProceduralBuilding(Placeable building)
+    
+    public void UpdateProceduralLadder(Placeable building)
     {
         Vector3Int leftbottom = building.LeftBottom;
         Vector3Int rightTop = building.RightTop;
 
+        GameObject ladderBottom = building.transform.Find("LadderBottom").gameObject;
+
+        // 겹쳐있는 건물은 업데이트를 수행하지 않는다.
+        if(collapsedObjects.Contains(building))
+        {
+            ladderBottom.SetActive(false);
+            return;
+        }
+
         // 바닥에 밀착된 건물이 있는지 확인한다.
         bool isConnectedFloor = false;
-        GameObject ladderBottom = building.transform.Find("LadderBottom").gameObject;
         if (leftbottom.y != 0) // 맨아래 바닥은 필요 없다.
         {
             foreach (var b in buildings)
@@ -106,14 +129,15 @@ public class BuildingHandler : MonoBehaviour
             {
             }
             // 사다리는 아래에 처음 만나는 바닥까지 생성한다.
-
+            Vector3 ladderPos = new Vector3(origin.x , hit.collider.bounds.max.y,0);
             ladderBottom.SetActive(true);
             var ladderSize = ladderBottom.GetComponent<SpriteRenderer>().size;
-            ladderSize.y = hit.distance;
+            ladderSize.y = Mathf.Abs(ladderPos.y - origin.y);
             ladderBottom.GetComponent<SpriteRenderer>().size = ladderSize;
 
 
             ladderBottom.transform.position = origin + Vector3.down * hit.distance;
+            ladderBottom.transform.position = ladderPos;
         }
         else
         {
@@ -158,10 +182,21 @@ public class BuildingHandler : MonoBehaviour
     {
         pointer.transform.position = gridLayout.CellToWorld(Vector3Int.zero);
         ChangeMode(BuildState.Mode.Edit);
+
+        
+    }
+
+    private void FixedUpdate()
+    {
+
+        bool isEditing = currentState.Equals(BuildState.Mode.Edit);
+        isEditing |= currentState.Equals(BuildState.Mode.Construct);
+
     }
 
     private void Update()
     {
+        
         modeContainer[currentState].Update();
     }
 

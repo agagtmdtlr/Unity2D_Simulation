@@ -2,14 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using static UnityEditor.PlayerSettings;
 
 public class Placeable : MonoBehaviour
 {
     public Vector2Int Size;
     public TileBase buildTile;
-    private Vector3[] Vertices;
-
-
+    public List<BoundsInt> bounds = new List<BoundsInt>();
 
     public Vector3Int LeftBottom { get { return BuildingHandler.Instance.gridLayout.WorldToCell(transform.position); } }
     public Vector3Int RightTop { get { return LeftBottom + new Vector3Int(Size.x ,Size.y,0); } }
@@ -21,14 +20,23 @@ public class Placeable : MonoBehaviour
         var sizef = b.bounds.extents * 2f;
         sizef += Vector3.one * 0.5f;
         Size = new Vector2Int((int)sizef.x, (int)sizef.y);
+
+        int cnt = transform.childCount;
+        for(int i = 0; i < cnt; i++)
+        {
+            var c = transform.GetChild(i);
+            if(c.CompareTag("Build") && c.TryGetComponent(out BoxCollider2D cbox))
+            {
+
+                BoundsInt bound = new BoundsInt();
+                bound.min = BuildingHandler.Instance.gridLayout.WorldToCell(cbox.bounds.min - transform.position);
+                bound.max = BuildingHandler.Instance.gridLayout.WorldToCell(cbox.bounds.max - transform.position);
+
+                bounds.Add( bound );
+            }
+        }
     }
 
-    private Vector3 GetStartPosition()
-    {
-        return transform.TransformPoint(Vertices[0]);
-    }
-
-   
     void Start()
     {
         CalculateSizeInCells();
@@ -51,11 +59,35 @@ public class Placeable : MonoBehaviour
         }
     }
 
+    public bool IsCollapseDetail(Placeable other , Vector3Int pos , Vector3Int otherPos)
+    {
+        foreach (var otherb in other.bounds)
+        {
+            var omin = otherPos + otherb.min;
+            var omax = otherPos + otherb.max;
+
+            foreach (var b in bounds)
+            {
+                var min = pos + b.min;
+                var max = pos + b.max;
+                if (max.x > omin.x && omax.x > min.x && max.y > omin.y && omax.y > min.y)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     public bool IsCollapse(Placeable other)
     {
         if (other == this)
             return false;
+
+
+
+
+       
 
         Vector3Int pos = BuildingHandler.Instance.gridLayout.WorldToCell(transform.position);
         Vector3Int endPos = pos;
@@ -69,7 +101,7 @@ public class Placeable : MonoBehaviour
 
         if (endPos.x > otherPos.x && otherEndPos.x > pos.x && endPos.y > otherPos.y && otherEndPos.y > pos.y )
         {
-            return true;
+            return IsCollapseDetail(other, pos, otherPos);
         }
 
         return false;
