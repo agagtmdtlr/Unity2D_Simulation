@@ -19,8 +19,8 @@ TagManager:
   - Ladder
   - Interaction
   - Tool
-  - 
-  - 
+  - Floor
+  - Ceil
   - 
   - 
   - 
@@ -64,4 +64,7 @@ TagManager:
     locked: 0
   - name: ForeGround
     uniqueID: 461098201
+    locked: 0
+  - name: BuildBackground
+    uniqueID: 1126919131
     locked: 0

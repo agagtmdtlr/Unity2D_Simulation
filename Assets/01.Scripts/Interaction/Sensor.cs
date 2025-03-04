@@ -126,7 +126,7 @@ public class Sensor : MonoBehaviour
     {
         if (triggerWay.Equals(InteractTriggerWay.EnterTrigger) && !consumed)
         {
-            if (collision.TryGetComponent(out Interactor interactor))
+             if (collision.TryGetComponent(out Interactor interactor))
             {
                 CallInteract(interactor);
                 Consume();

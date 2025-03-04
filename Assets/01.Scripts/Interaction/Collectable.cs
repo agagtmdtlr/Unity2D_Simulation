@@ -15,6 +15,16 @@ public class Collectable : MonoBehaviour
         spriteRenderer.sprite = item.itemInformation.icon;
     }
 
+    private void OnEnable()
+    {
+        interactable.interactEvent.AddListener( OnColleted);
+    }
+
+    private void OnDisable()
+    {
+        interactable.interactEvent.RemoveListener( OnColleted);
+    }
+
     public void OnColleted()
     {
         if (interactable.interactor.TryGetComponent(out InventoryController inventory))

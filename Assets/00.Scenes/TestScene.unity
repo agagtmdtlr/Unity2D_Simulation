@@ -364,6 +364,38 @@ PrefabInstance:
       propertyPath: m_Name
       value: Collectable
       objectReference: {fileID: 0}
+    - target: {fileID: 3497768918274313729, guid: 1ceea0a919c2bb048ac8981ef70de650, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 6423087403477762943, guid: 1ceea0a919c2bb048ac8981ef70de650, type: 3}
+      propertyPath: interactEvent.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6423087403477762943, guid: 1ceea0a919c2bb048ac8981ef70de650, type: 3}
+      propertyPath: interactEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6423087403477762943, guid: 1ceea0a919c2bb048ac8981ef70de650, type: 3}
+      propertyPath: interactEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 341809493}
+    - target: {fileID: 6423087403477762943, guid: 1ceea0a919c2bb048ac8981ef70de650, type: 3}
+      propertyPath: interactEvent.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6423087403477762943, guid: 1ceea0a919c2bb048ac8981ef70de650, type: 3}
+      propertyPath: interactEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnColleted
+      objectReference: {fileID: 0}
+    - target: {fileID: 6423087403477762943, guid: 1ceea0a919c2bb048ac8981ef70de650, type: 3}
+      propertyPath: interactEvent.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Collectable, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 6423087403477762943, guid: 1ceea0a919c2bb048ac8981ef70de650, type: 3}
+      propertyPath: interactEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 7589329405533605497, guid: 1ceea0a919c2bb048ac8981ef70de650, type: 3}
       propertyPath: m_CallbackLayers.m_Bits
       value: 8
@@ -539,6 +571,17 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &341809493 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7660879331111679200, guid: 1ceea0a919c2bb048ac8981ef70de650, type: 3}
+  m_PrefabInstance: {fileID: 128974075}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c87710a7e17fc1d4d81332bcf5656ade, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &371395977
 GameObject:
   m_ObjectHideFlags: 0
