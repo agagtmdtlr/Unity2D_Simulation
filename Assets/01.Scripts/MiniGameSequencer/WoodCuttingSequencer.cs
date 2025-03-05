@@ -10,7 +10,7 @@ public class WoodCuttingSequencer : MonoBehaviour
     Harvestable target;
     Rigidbody2D rb;
     Collider2D col;
-    PlayerController pc;
+    Controllable control;
 
     [SerializeField] float startPosXOffset;
 
@@ -34,7 +34,7 @@ public class WoodCuttingSequencer : MonoBehaviour
         isPlaying = false;
 
         rb.isKinematic = false;
-        pc.inputLocked = false;
+        control.InputLocked = false;
 
         animator.SetBool("Wood", false);
 
@@ -62,9 +62,9 @@ public class WoodCuttingSequencer : MonoBehaviour
             rb.velocity = Vector2.zero;
         }
 
-        if( player.TryGetComponent(out pc ))
+        if( player.TryGetComponent(out control))
         {
-            pc.inputLocked = true;
+            control.InputLocked = true;
         }
 
         if (player.TryGetComponent(out animator))

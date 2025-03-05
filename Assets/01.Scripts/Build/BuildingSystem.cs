@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.Tilemaps;
 using System.Linq;
 using Cinemachine;
+using Unity.VisualScripting;
 
 
 public class BuildingSystem : MonoBehaviour
@@ -15,13 +16,18 @@ public class BuildingSystem : MonoBehaviour
         get { return instance; }
     }
 
-    public GridLayout gridLayout;
 
     Grid grid;
     public Tilemap buildmap;
 
+    [HideInInspector] public Interactor interactor;
 
-    public Interactor interactor;
+    [Header("Tile Map")]
+    public GridLayout gridLayout;
+
+    public Tilemap floorMap;
+    public Tilemap ceilMap;
+    public TileBase colliderTile;
 
     public Tilemap overlayMap;
     public TileBase fillTile;
@@ -29,15 +35,19 @@ public class BuildingSystem : MonoBehaviour
     public Tilemap lineOverlayMap;
     public TileBase lineTile;
 
+    [Header("Build Space Data")]
     public Vector3Int beginPos;
     public Vector3Int endPos;
 
     public GameObject pointer;
     public GameObject ladderBottom;
 
+    public LayerMask whatIsGround;
+
+    [Header("Build UI")]
     public GameObject constructMenuUI;
 
-
+    [Header("Building Asset")]
     public BuildSet[] buildSets;
     Vector3 cellSize { get { return buildmap.cellSize; } }
 
@@ -77,6 +87,15 @@ public class BuildingSystem : MonoBehaviour
         return prefabinstance;
     }
 
+    public void SetTileToFloor(Vector3Int pos)
+    {
+        floorMap.SetTile(pos, colliderTile);
+    }    
+    public void SetTileToCeil(Vector3Int pos)
+    {
+        ceilMap.SetTile(pos, colliderTile);
+    }
+
     public void ReserveUpdateProceduralLadder()
     {
         StopCoroutine("UpdateAllProceduralLadder");
@@ -87,20 +106,23 @@ public class BuildingSystem : MonoBehaviour
     {
         // collider 정보가 업데이트 된 후 수행되어야 한다.
         yield return new WaitForFixedUpdate();
+
+        floorMap.ClearAllTiles();
+        ceilMap.ClearAllTiles();
+
         for (int i = 0; i < buildings.Count; i++)
         {
             UpdateProceduralLadder(buildings[i]);
         }
     }
 
-    public LayerMask whatIsGround;
     
     public void UpdateProceduralLadder(Placeable building)
     {
         Vector3Int leftbottom = building.LeftBottom;
         Vector3Int rightTop = building.RightTop;
 
-        GameObject ladderBottom = building.transform.Find("LadderBottom").gameObject;
+        GameObject ladderBottom = building.ladderBottom;
 
         // 겹쳐있는 건물은 업데이트를 수행하지 않는다.
         if(collapsedObjects.Contains(building))
@@ -129,61 +151,17 @@ public class BuildingSystem : MonoBehaviour
         else
         {
             ladderBottom.SetActive(false);
-            return;
         }
 
         // 바닥에 밀착된 건물이 없다면 바닥에 아래로 연결된 사다리를 생성한다.
         if (isConnectedFloor == false)
         {
-            Vector3Int beginInt = leftbottom;
-            beginInt.x += building.Size.x / 3;
-
-            Vector3 origin = gridLayout.CellToWorld(beginInt);
-
-            // raycast 검사로 바닥까지의 거리를 계산한다.
-            RaycastHit2D hit =  Physics2D.Raycast(origin, Vector2.down, 1000f, whatIsGround);
-            if(hit.collider != null)
-            {
-                // 사다리는 아래에 처음 만나는 바닥까지 생성한다.
-                Vector3 ladderPos = new Vector3(origin.x, hit.collider.bounds.max.y, 0);
-                ladderBottom.SetActive(true);
-                var ladderSize = ladderBottom.GetComponent<SpriteRenderer>().size;
-                ladderSize.y = Mathf.Abs(ladderPos.y - origin.y);
-                ladderBottom.GetComponent<SpriteRenderer>().size = ladderSize;
-
-
-                ladderBottom.transform.position = origin + Vector3.down * hit.distance;
-                ladderBottom.transform.position = ladderPos;
-            }
-            else
-            {
-                ladderBottom.SetActive(false);
-            }
-        }
-        else
-        {
-            ladderBottom.SetActive(false);
+            building.ExtendLadderToGround(whatIsGround);
         }
 
-        foreach (var bridge in building.bridges)
-        {
-
-            Vector3 bp = bridge.position;
-            RaycastHit2D bhit = Physics2D.Raycast(bp, Vector2.down, 1000f, whatIsGround);
-            if (bhit.collider != null && bhit.distance > 0.5f)
-            {
-                bridge.gameObject.SetActive(true);
-
-                var sr = bridge.GetComponent<SpriteRenderer>();
-                var newSize = sr.size;
-                newSize.y = bhit.distance;
-                sr.size = newSize;
-            }
-            else
-            {
-                bridge.gameObject.SetActive(false);
-            }
-        }
+        building.GenerateTileColliderFromBound();
+        building.ExtendBridgeToGround(whatIsGround);
+        
     }
 
     public void DestroyPlacementInstance(Placeable placement)
@@ -254,13 +232,6 @@ public class BuildingSystem : MonoBehaviour
     public bool isCollapsed = false;
     public List<Placeable> collapsedObjects = new List<Placeable>();
 
-
-    void Construct(Vector3Int gridPos, GameObject prefab)
-    {
-        Vector3 worldPos = gridLayout.CellToWorld(gridPos);
-        Instantiate(prefab, worldPos, Quaternion.identity);
-    }
-
     public void SetActiveAllMovableCharacter(bool activate)
     {
     }
@@ -323,9 +294,9 @@ public class BuildingSystem : MonoBehaviour
             playerRigidBody.isKinematic = true;
             playerRigidBody.velocity = Vector2.zero;
         }
-        if (interactor.TryGetComponent(out PlayerController playerController))
+        if (interactor.TryGetComponent(out Controllable control))
         {
-            playerController.inputLocked = true;
+            control.InputLocked = true;
         }
 
     }
@@ -342,52 +313,21 @@ public class BuildingSystem : MonoBehaviour
         {
             playerRigidBody.isKinematic = false;
         }
-        if (interactor.TryGetComponent(out PlayerController playerController))
+        if (interactor.TryGetComponent(out Controllable playerController))
         {
-            playerController.inputLocked = false;
+            playerController.InputLocked = false;
         }
     }
 
-    bool CheckInner(Vector3Int pos , Placeable placeable)
+    public static Vector3Int WorldToGrid(Vector3 position)
     {
-        if(placeable.IsInner(pos))
-        {
-            selected = true;
-            selectedPlacement = placeable;
-
-            SpriteRenderer[] renderers = selectedPlacement.GetComponents<SpriteRenderer>();
-            foreach (var r in renderers)
-            {
-                r.color = selectColor;
-            }
-            return true;
-        }
-
-        return false;
+        return Instance.gridLayout.WorldToCell(position);
     }
 
-    void IntializeOverlayMap()
+    public static Vector3 SnapCoordinateToGrid(Vector3 position)
     {
-        overlayMap.ClearAllTiles();
-        lineOverlayMap.ClearAllTiles();
-
-        Vector3Int Size = endPos - beginPos;
-        for (int i = 0; i < Size.x; i++)
-        {
-            for (int j = 0; j < Size.y; j++)
-            {
-                Vector3Int p = beginPos + new Vector3Int(i, j, 0);
-                overlayMap.SetTile(p, fillTile);
-                lineOverlayMap.SetTile(p, lineTile);
-            }
-        }
-    }
-
-
-    public Vector3 SnapCoordinateToGrid(Vector3 position)
-    {
-        Vector3Int cellPos =  gridLayout.WorldToCell(position);
-        position = grid.GetCellCenterWorld(cellPos);
+        Vector3Int cellPos = Instance.gridLayout.WorldToCell(position);
+        position = Instance.gridLayout.CellToWorld(cellPos);
         return position;
     }
 

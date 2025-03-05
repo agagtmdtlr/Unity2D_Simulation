@@ -18,24 +18,23 @@ public class Platform : MonoBehaviour
         if(isPlayer && Input.GetAxisRaw("Vertical") < 0f && Input.GetButtonDown("Jump"))
         {
             StartCoroutine(ReversePlatform_Co());
-            isPlayer = false;
         }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         isPlayer = true;
-        effector2d.surfaceArc = 180f;
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
         isPlayer = false;
-        effector2d.surfaceArc = 90f;
     }
 
     IEnumerator ReversePlatform_Co()
     {
+        isPlayer = false;
+
         effector2d.rotationalOffset = 180f;
         collider2d.enabled = false;
         yield return new WaitForSeconds(0.5f);

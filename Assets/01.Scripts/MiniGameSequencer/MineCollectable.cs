@@ -8,7 +8,6 @@ public class MineCollectable : MonoBehaviour
     [SerializeField] float chargeGaugeSuccessLimitation = 3f;
     [SerializeField] float chargeGaugeMax = 5f;
 
-    SpriteRenderer renderer2d;
     Collider2D collider2d;
     Sensor interaction;
     [SerializeField] float hp;
@@ -19,15 +18,13 @@ public class MineCollectable : MonoBehaviour
 
 
     Rigidbody2D playerRigidBody;
-    PlayerController playerController;
+    Controllable control;
     Animator playerAnimator;
     SpriteRenderer playerRender;
     GameObject tool;
-    bool StopInteraction;
 
     private void Awake()
     {
-        TryGetComponent(out renderer2d);
         TryGetComponent(out interaction);
         TryGetComponent(out collider2d);
     }
@@ -37,8 +34,6 @@ public class MineCollectable : MonoBehaviour
         hp = 2;
         isPlaying = false;
     }
-
-    
 
     public void ReadyMining()
     {
@@ -57,9 +52,9 @@ public class MineCollectable : MonoBehaviour
             playerRigidBody.isKinematic = true;
             playerRigidBody.velocity = Vector2.zero;
         }
-        if (player.TryGetComponent(out playerController))
+        if (player.TryGetComponent(out control))
         {
-            playerController.inputLocked = true;
+            control.InputLocked = true;
         }
         if (player.TryGetComponent(out playerAnimator))
         {
@@ -162,58 +157,14 @@ public class MineCollectable : MonoBehaviour
 
     }
 
-    float chargeStartTime;
-
-    private void Update()
-    {
-        return;
-        if (!isPlaying)
-            return;
-
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            isCharging = true;
-            chargeGauge = 0f;
-            playerAnimator.SetBool("MineAttack", true);
-        }
-
-        if (isCharging && Input.GetKey(KeyCode.E))
-        {
-            chargeGauge += Time.deltaTime;
-        }
-        else
-        {
-            chargeGauge -= Time.deltaTime * attackSpeed;
-            chargeGauge = Mathf.Max(0f, chargeGauge);
-        }
-
-        // 오버차징으로 공격실패
-        if (chargeGauge > chargeGaugeMax)
-        {
-            isCharging = false;
-            chargeGauge = 0f;
-            playerAnimator.SetBool("MineAttack", false);
-        }
-
-        // 공격 성공
-        if (isCharging && Input.GetKeyUp(KeyCode.E))
-        {
-            hp -= chargeGauge / chargeGaugeMax;
-            playerAnimator.SetBool("MineAttack", false);
-            isCharging = false;
-
-        }
-
-        UpdateChargeAnimation();
-    }
-
+    
 
     // 수확인 완료되지 않고 중간 중단됬을때만 호출된다.
     void StopMining()
     {
         isPlaying = false;
         collider2d.isTrigger = false;
-        playerController.inputLocked = false;
+        control.InputLocked = false;
         playerRigidBody.isKinematic = false;
         playerRigidBody.velocity = Vector2.zero;
         playerAnimator.SetBool("Mine", false);

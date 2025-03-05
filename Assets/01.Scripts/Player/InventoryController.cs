@@ -15,6 +15,7 @@ public class InventoryController : MonoBehaviour
     UI_Inventory inventory_ui;
 
     PlayerController playerController;
+    Controllable control;
     ItemCategory selectedCategory;
 
     [SerializeField] ItemSlot[] items;
@@ -48,15 +49,15 @@ public class InventoryController : MonoBehaviour
         // 인벤토리가 눌리면 UI가 활성화되어야 한다.
         if( Input.GetKeyDown(KeyCode.R) )
         {
-            playerController.inputLocked = !playerController.inputLocked;
+            control.InputLocked = !control.InputLocked;
             // 인벤토리가 열렸다면 화면을 초기화 해준다.
-            if(playerController.inputLocked)
+            if(control.InputLocked)
             {
                 ItemCategory defaultCategory = (ItemCategory)(0);
                 inventory_ui.ShowInventory(defaultCategory, seperatedItems[defaultCategory]);
             }
 
-            inventory_ui.gameObject.SetActive(playerController.inputLocked);
+            inventory_ui.gameObject.SetActive(control.InputLocked);
         }
 
 

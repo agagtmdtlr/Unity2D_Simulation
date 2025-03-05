@@ -27,7 +27,7 @@ public class LadderMovement : MovementState
         category = MovementCategory.Ladder;
         bool isClosedGround = false;
         // only check move direction and reached ground
-        if (context.input.y < 0f)
+        if (input.y < 0f)
         {
             float origin = collider.bounds.min.y;
             float to = detection.bound.min.y;
@@ -39,7 +39,7 @@ public class LadderMovement : MovementState
             }
 
         }
-        else if (context.input.y > 0f)
+        else if (input.y > 0f)
         {
             float origin = collider.bounds.min.y;
             float to = detection.bound.max.y + 0.1f;
@@ -57,7 +57,7 @@ public class LadderMovement : MovementState
             return true;
         }
 
-        if((context.inputJump && context.input_Abs.x > 0f))
+        if((inputJump && input_Abs.x > 0f))
         {
             category = MovementCategory.Jump;
             return true;
@@ -87,9 +87,9 @@ public class LadderMovement : MovementState
 
     public override void Update()
     {
-        Vector2 delta = Vector2.up * context.input.y * context.moveSpeed * Time.deltaTime;
+        Vector2 delta = Vector2.up * input.y * context.moveSpeed * Time.deltaTime;
         body.position = body.position + delta;
-        animator.SetFloat("dir_y", context.input.y);
+        animator.SetFloat("dir_y", input.y);
     }
 
     

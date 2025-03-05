@@ -484,6 +484,8 @@ MonoBehaviour:
   Size: {x: 0, y: 0, z: 0}
   bounds: []
   bridges: []
+  renderers: []
+  platformGenerators: []
 --- !u!61 &6726124070672700764
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -516,7 +518,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 5.98, y: 2.5}
+  m_Offset: {x: 6.125927, y: 2.5}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -527,7 +529,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 11.96, y: 5}
+  m_Size: {x: 12.251854, y: 5}
   m_EdgeRadius: 0
 --- !u!1 &8550507775820061920
 GameObject:
@@ -685,7 +687,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2276293927805045946, guid: 2d9a19aab4d502048a5655d393411569, type: 3}
       propertyPath: m_Size.x
-      value: 11.96
+      value: 12.215373
       objectReference: {fileID: 0}
     - target: {fileID: 2276293927805045946, guid: 2d9a19aab4d502048a5655d393411569, type: 3}
       propertyPath: m_Size.y
@@ -693,7 +695,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2276293927805045946, guid: 2d9a19aab4d502048a5655d393411569, type: 3}
       propertyPath: m_Offset.x
-      value: 5.98
+      value: 6.1076865
       objectReference: {fileID: 0}
     - target: {fileID: 2276293927805045946, guid: 2d9a19aab4d502048a5655d393411569, type: 3}
       propertyPath: m_Offset.y
@@ -722,6 +724,14 @@ PrefabInstance:
     - target: {fileID: 2338926855144080311, guid: 2d9a19aab4d502048a5655d393411569, type: 3}
       propertyPath: m_Name
       value: Bound (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2338926855144080311, guid: 2d9a19aab4d502048a5655d393411569, type: 3}
+      propertyPath: m_Layer
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 2338926855144080311, guid: 2d9a19aab4d502048a5655d393411569, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4940428491391897476, guid: 2d9a19aab4d502048a5655d393411569, type: 3}
       propertyPath: m_LocalPosition.x

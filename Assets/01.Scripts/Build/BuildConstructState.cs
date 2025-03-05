@@ -36,7 +36,7 @@ public class BuildConstructMenuState : BuildState
             int index = i;
             ui.build_icons[i].sprite = bs.icn;
             ui.build_buttons[i].onClick.RemoveAllListeners();
-            ui.build_buttons[i].onClick.AddListener(() => { Debug.Log(index); OnSelectPrefab(index); });
+            ui.build_buttons[i].onClick.AddListener(() => { OnSelectPrefab(index); });
         }
 
         OnSelectPrefab(0);

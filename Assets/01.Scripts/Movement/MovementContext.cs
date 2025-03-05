@@ -17,12 +17,13 @@ public abstract class MovementState
     protected Rigidbody2D body;
     protected Collider2D collider;
     protected SpriteRenderer renderer;
+    protected Controllable control;
 
     protected bool isGrounded { get { return context.isGrounded; } }
-    protected Vector2 input { get { return context.input; } }
-    protected Vector2 input_Abs { get { return context.input_Abs; } }
+    protected Vector2 input { get { return control.Axis; } }
+    protected Vector2 input_Abs { get { return control.Axis_Abs; } }
     protected Vector2 velocity { get { return body.velocity; } set { body.velocity = value; } }
-    protected bool inputJump { get { return context.inputJump; } }
+    protected bool inputJump { get { return control.InputJump; } }
     protected float moveSpeed { get { return context.moveSpeed; } }
     protected float jumpSpeed { get { return context.jumpSpeed; } }
 
@@ -33,6 +34,7 @@ public abstract class MovementState
         context.TryGetComponent(out body);
         context.TryGetComponent(out collider);
         context.TryGetComponent(out renderer);
+        context.TryGetComponent(out control);
     }
 
     public abstract void Update();

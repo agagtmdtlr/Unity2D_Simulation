@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class Interactor : MonoBehaviour
 {
+    Controllable control;
     Collider2D collider2d;
     public float interactionRange = 1.0f;
     [SerializeField] private LayerMask whatIsInteractable;
@@ -17,7 +18,8 @@ public class Interactor : MonoBehaviour
 
     private void Awake()
     {
-        TryGetComponent(out collider2d);       
+        TryGetComponent(out collider2d);
+        TryGetComponent(out control);
     }
 
     void EndInteracting()
@@ -98,7 +100,7 @@ public class Interactor : MonoBehaviour
         }
 
         // if interact clicked then find interactable objects
-        if (Interacted is null && Input.GetKeyDown(KeyCode.E))
+        if (Interacted is null && control.InputInteract)
         {
             if(closestInteractable != null && Interacted != closestInteractable)
             {

@@ -10,11 +10,7 @@ public class PlayerController : MonoBehaviour
     [Header("Ground Info")]
     [SerializeField] public float moveSpeed = 5f;
     [SerializeField] public float jumpSpeed = 700f;
-
     [SerializeField] public bool isGrounded = false;
-
-    [Header("Jump Info")]
-    public bool inputJump;
 
     [Header("Climb Info")]
     public Detection climbDetection;
@@ -24,16 +20,11 @@ public class PlayerController : MonoBehaviour
     [Header("Ladder Info")]
     public Detection ladderDetection;
 
-    [Header("Input Command")]
-    public Vector2 input;
-    public Vector2 input_Abs;
-    public bool inputLocked = false;
-
-
+    Controllable control;
     Animator animator;
     Rigidbody2D body;
     BoxCollider2D collider2d;
-    Interactor interactor;
+
 
     MovementCategory currentCategory;
     Dictionary<MovementCategory, MovementState> stateContainer;
@@ -49,7 +40,7 @@ public class PlayerController : MonoBehaviour
         TryGetComponent(out animator);
         TryGetComponent(out collider2d);
         TryGetComponent(out body);
-        TryGetComponent(out interactor);
+        TryGetComponent(out control);
 
         isGrounded = false;
 
@@ -73,22 +64,14 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if(!inputLocked )
+        if(!control.InputLocked )
         {
-            input.x = Input.GetAxisRaw("Horizontal");
-            input.y = Input.GetAxisRaw("Vertical");
-
-            input_Abs.x = Mathf.Abs(input.x);
-            input_Abs.y = Mathf.Abs(input.y);
-
-            inputJump = Input.GetButtonDown("Jump");
-
             isGrounded = IsGrounded();
             animator.SetBool("isGrounded", isGrounded);
             animator.SetFloat("GroundSpeed", body.velocity.x);
             animator.SetFloat("JumpSpeed", body.velocity.y);
-            animator.SetFloat("dir_x", input.x); 
-            animator.SetFloat("dir_y", input.y);
+            animator.SetFloat("dir_x", control.Axis.x); 
+            animator.SetFloat("dir_y", control.Axis.y);
         }
 
         stateContainer[currentCategory].Update();

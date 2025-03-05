@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Build.Pipeline.Utilities;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using static UnityEditor.PlayerSettings;
@@ -13,6 +14,62 @@ public class Placeable : MonoBehaviour
 
     public List<Transform> bridges = new List<Transform>();
     public List<SpriteRenderer> renderers = new List<SpriteRenderer>();
+    public List<PlatformGenerator> platformGenerators = new List<PlatformGenerator>();
+
+    public GameObject ladderBottom;
+
+
+    public void ExtendLadderToGround(LayerMask layerMask)
+    {
+
+        Vector3Int beginInt = LeftBottom;
+        beginInt.x += Size.x / 3;
+
+        Vector3 origin = BuildingSystem.Instance.gridLayout.CellToWorld(beginInt);
+
+        // raycast 검사로 바닥까지의 거리를 계산한다.
+        RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.down, 1000f, layerMask);
+        if (hit.collider != null)
+        {
+            // 사다리는 아래에 처음 만나는 바닥까지 생성한다.
+            ladderBottom.SetActive(true);
+            var ladderSize = ladderBottom.GetComponent<SpriteRenderer>().size;
+            ladderSize.y = hit.distance;
+            ladderBottom.GetComponent<SpriteRenderer>().size = ladderSize;
+
+            ladderBottom.transform.position = origin + Vector3.down * hit.distance;
+        }
+        else
+        {
+            ladderBottom.SetActive(false);
+        }
+    }
+    public void ExtendBridgeToGround(LayerMask layer)
+    {
+        foreach (var bridge in bridges)
+        {
+            Vector3 bp = bridge.position;
+            RaycastHit2D bhit = Physics2D.Raycast(bp, Vector2.down, 1000f, layer);
+            if (bhit.collider != null && bhit.distance > 0.5f)
+            {
+                bridge.gameObject.SetActive(true);
+
+                var sr = bridge.GetComponent<SpriteRenderer>();
+                var newSize = sr.size;
+                newSize.y = bhit.distance;
+                sr.size = newSize;
+            }
+            else
+            {
+                bridge.gameObject.SetActive(false);
+            }
+        }
+    }
+    public void GenerateTileColliderFromBound()
+    {
+        foreach (var pg in platformGenerators)
+            pg.GenerateTileCollider();
+    }
 
     private void CalculateSizeInCells()
     {
@@ -34,9 +91,15 @@ public class Placeable : MonoBehaviour
 
                 bounds.Add( bound );
             }
-            else if(c.CompareTag("Bridge"))
+
+            if(c.CompareTag("Bridge"))
             {
                 bridges.Add(c);
+            }
+
+            if(c.TryGetComponent(out PlatformGenerator pg))
+            {
+                platformGenerators.Add(pg);
             }
 
             if(c.TryGetComponent(out SpriteRenderer r))
@@ -56,6 +119,8 @@ public class Placeable : MonoBehaviour
 
         var ladderRender = transform.GetChild(0).GetComponent<SpriteRenderer>();
         ladderRender.size = new Vector2 (ladderRender.size.x , Size.y + 0.5f);
+
+        ladderBottom = transform.Find("LadderBottom").gameObject;
     }
 
     public void ChangeColor(Color color)
@@ -91,8 +156,6 @@ public class Placeable : MonoBehaviour
     {
         if (other == this)
             return false;
-
-
 
         Vector3Int pos = BuildingSystem.Instance.gridLayout.WorldToCell(transform.position);
         Vector3Int endPos = pos;
