@@ -1743,7 +1743,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5eeeaca04c63b0242b0a8645561aedb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buildmap: {fileID: 1316274845}
   interactor: {fileID: 0}
   gridLayout: {fileID: 2120163602}
   floorMap: {fileID: 1316274845}

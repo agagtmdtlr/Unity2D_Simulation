@@ -27,7 +27,9 @@ public class BuildConstructMenuState : BuildState
         menuObj.SetActive(true);
         context.SetActiveAllMovableCharacter(false);
 
+
         ui = menuObj.GetComponent<UI_ConstructMode_Handler>();
+        ui.UpdateUI(context.buildSets);
         for (int i = 0; i < context.buildSets.Length; i++)
         {
             BuildSet bs = context.buildSets[i];

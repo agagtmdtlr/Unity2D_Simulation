@@ -16,10 +16,6 @@ public class BuildingSystem : MonoBehaviour
         get { return instance; }
     }
 
-
-    Grid grid;
-    public Tilemap buildmap;
-
     [HideInInspector] public Interactor interactor;
 
     [Header("Tile Map")]
@@ -49,7 +45,6 @@ public class BuildingSystem : MonoBehaviour
 
     [Header("Building Asset")]
     public BuildSet[] buildSets;
-    Vector3 cellSize { get { return buildmap.cellSize; } }
 
     BuildState.Mode currentState = BuildState.Mode.None;
 
@@ -184,8 +179,6 @@ public class BuildingSystem : MonoBehaviour
         {
             instance = this;
         }
-
-        grid = gridLayout.gameObject.GetComponent<Grid>();
 
         buildings = new List<Placeable>();
         buildings = FindObjectsOfType<Placeable>().ToList();       
