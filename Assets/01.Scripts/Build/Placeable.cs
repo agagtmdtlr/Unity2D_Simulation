@@ -6,20 +6,20 @@ using static UnityEditor.PlayerSettings;
 
 public class Placeable : MonoBehaviour
 {
-    public Vector2Int Size;
-    public TileBase buildTile;
+    public Vector3Int Size;
     public List<BoundsInt> bounds = new List<BoundsInt>();
-
-    public Vector3Int LeftBottom { get { return BuildingHandler.Instance.gridLayout.WorldToCell(transform.position); } }
+    public Vector3Int LeftBottom { get { return BuildingSystem.Instance.gridLayout.WorldToCell(transform.position); } }
     public Vector3Int RightTop { get { return LeftBottom + new Vector3Int(Size.x ,Size.y,0); } }
-   
+
+    public List<Transform> bridges = new List<Transform>();
+    public List<SpriteRenderer> renderers = new List<SpriteRenderer>();
 
     private void CalculateSizeInCells()
     {
         BoxCollider2D b = gameObject.GetComponent<BoxCollider2D>();
         var sizef = b.bounds.extents * 2f;
         sizef += Vector3.one * 0.5f;
-        Size = new Vector2Int((int)sizef.x, (int)sizef.y);
+        Size = new Vector3Int((int)sizef.x, (int)sizef.y, 0);
 
         int cnt = transform.childCount;
         for(int i = 0; i < cnt; i++)
@@ -29,30 +29,38 @@ public class Placeable : MonoBehaviour
             {
 
                 BoundsInt bound = new BoundsInt();
-                bound.min = BuildingHandler.Instance.gridLayout.WorldToCell(cbox.bounds.min - transform.position);
-                bound.max = BuildingHandler.Instance.gridLayout.WorldToCell(cbox.bounds.max - transform.position);
+                bound.min = BuildingSystem.Instance.gridLayout.WorldToCell(cbox.bounds.min - transform.position);
+                bound.max = BuildingSystem.Instance.gridLayout.WorldToCell(cbox.bounds.max - transform.position);
 
                 bounds.Add( bound );
             }
+            else if(c.CompareTag("Bridge"))
+            {
+                bridges.Add(c);
+            }
+
+            if(c.TryGetComponent(out SpriteRenderer r))
+            {
+                renderers.Add(r);
+            }
+            renderers.AddRange(c.GetComponentsInChildren<SpriteRenderer>());
         }
+        renderers.Add(GetComponent<SpriteRenderer>());
+
     }
 
     void Start()
     {
+        //transform.position = BuildingSystem.Instance.SnapCoordinateToGrid(transform.position);
         CalculateSizeInCells();
-
-
-        Vector3Int cp = BuildingHandler.Instance.gridLayout.WorldToCell(transform.position);
-        transform.position = BuildingHandler.Instance.gridLayout.CellToWorld(cp);
 
         var ladderRender = transform.GetChild(0).GetComponent<SpriteRenderer>();
         ladderRender.size = new Vector2 (ladderRender.size.x , Size.y + 0.5f);
-        Place();
     }
 
     public void ChangeColor(Color color)
     {
-        SpriteRenderer[] renderers = GetComponents<SpriteRenderer>();
+        //SpriteRenderer[] renderers = GetComponents<SpriteRenderer>();
         foreach (var r in renderers)
         {
             r.color = color;
@@ -86,15 +94,12 @@ public class Placeable : MonoBehaviour
 
 
 
-
-       
-
-        Vector3Int pos = BuildingHandler.Instance.gridLayout.WorldToCell(transform.position);
+        Vector3Int pos = BuildingSystem.Instance.gridLayout.WorldToCell(transform.position);
         Vector3Int endPos = pos;
         endPos.x += Size.x;
         endPos.y += Size.y;
 
-        Vector3Int otherPos = BuildingHandler.Instance.gridLayout.WorldToCell(other.transform.position);
+        Vector3Int otherPos = BuildingSystem.Instance.gridLayout.WorldToCell(other.transform.position);
         Vector3Int otherEndPos= otherPos;
         otherEndPos.x += other.Size.x;
         otherEndPos.y += other.Size.y;
@@ -111,7 +116,7 @@ public class Placeable : MonoBehaviour
     public bool IsInner(Vector3Int pos)
     {
 
-        Vector3Int cp = BuildingHandler.Instance.gridLayout.WorldToCell(transform.position);
+        Vector3Int cp = BuildingSystem.Instance.gridLayout.WorldToCell(transform.position);
         Vector3Int ep = cp;
         ep.x += Size.x;
         ep.y += Size.y;
@@ -128,18 +133,18 @@ public class Placeable : MonoBehaviour
 
     public void Place()
     {
-        Vector3Int cp = BuildingHandler.Instance.gridLayout.WorldToCell(transform.position);
-        var wt = BuildingHandler.Instance.fillTile;
-        var lt = BuildingHandler.Instance.lineTile;
+        /*Vector3Int cp = BuildingSystem.Instance.gridLayout.WorldToCell(transform.position);
+        var wt = BuildingSystem.Instance.fillTile;
+        var lt = BuildingSystem.Instance.lineTile;
 
         for (int i = 0;  i < Size.x; i++)
         {
             for(int j = 0; j < Size.y; j++)
             {
-                BuildingHandler.Instance.overlayMap.SetTile(new Vector3Int(cp.x + i , cp.y + j, cp.z), wt);
-                BuildingHandler.Instance.lineOverlayMap.SetTile(new Vector3Int(cp.x + i , cp.y + j, cp.z), lt);
+                BuildingSystem.Instance.overlayMap.SetTile(new Vector3Int(cp.x + i , cp.y + j, cp.z), wt);
+                BuildingSystem.Instance.lineOverlayMap.SetTile(new Vector3Int(cp.x + i , cp.y + j, cp.z), lt);
             }
-        }
+        }*/
     }
 
     public void DePlace()

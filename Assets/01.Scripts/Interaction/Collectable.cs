@@ -29,7 +29,7 @@ public class Collectable : MonoBehaviour
     {
         if (interactable.interactor.TryGetComponent(out InventoryController inventory))
         {
-            inventory.AquireItem(item);
+            inventory.SetAmountOfItem(item.itemInformation, item.itemAmount);
             Destroy(gameObject);
         }
     }

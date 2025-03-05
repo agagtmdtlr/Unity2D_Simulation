@@ -18,14 +18,19 @@ public class BuildEditState : BuildState
 
     List<EditHistory> history = new List<EditHistory>();
 
-    public BuildEditState(BuildingHandler context) : base(context)
+    public BuildEditState(BuildingSystem context) : base(context)
     {
     }
 
     public override void BeginMode()
     {
+        context.SetActiveAllMovableCharacter(false);
+
         pointer.SetActive(true);
-        pointer.transform.position = gridLayout.CellToWorld(Vector3Int.zero);
+
+        var pointerPos = context.beginPos + (context.endPos - context.beginPos) / 2;
+
+        pointer.transform.position = gridLayout.CellToWorld(pointerPos);
 
         selected = false;
         selectedObject = null;
@@ -39,7 +44,7 @@ public class BuildEditState : BuildState
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            context.ChangeMode(Mode.None);
+            context.ChangeMode(Mode.SideMenu);
         }
     }
 
@@ -58,6 +63,8 @@ public class BuildEditState : BuildState
 
     public override void EndMode()
     {
+        context.pointer.SetActive(false);
+        context.SetActiveAllMovableCharacter(true);
         pointer.SetActive(false);
         if (history.Count > 0)
         {
@@ -120,17 +127,28 @@ public class BuildEditState : BuildState
     {
         int dx = (int)Input.GetAxisRaw("Horizontal");
         int dy = (int)Input.GetAxisRaw("Vertical");
-        Vector3Int delta = new Vector3Int(dx, dy, 0);
-        Vector3Int curPos = gridLayout.WorldToCell(pointer.transform.position);
-        curPos += delta;
 
-        pointer.transform.position = gridLayout.CellToWorld(curPos);
+        Vector3Int delta = new Vector3Int(dx, dy, 0);
+
+        // 선택된 건물이 있다면 위치 옮겨준다.
         if (selected)
         {
-            // 선택된 건물이 있다면 건물의 위치도 옮겨준다.
+
+            Vector3Int curPos = gridLayout.WorldToCell(pointer.transform.position);
             var buildingPos = gridLayout.WorldToCell(selectedObject.transform.position);
+
+            if(context.isOutRangeToPlace(buildingPos + delta) ||
+                context.isOutRangeToPlace(buildingPos + delta + selectedObject.Size ))
+            {
+                delta = Vector3Int.zero;
+            }
+
             buildingPos += delta;
+            curPos += delta;
+
+            pointer.transform.position = gridLayout.CellToWorld(curPos);
             selectedObject.transform.position = gridLayout.CellToWorld(buildingPos);
+
 
             isCollapsed = false;
             collapsedObjects.Clear();
@@ -161,7 +179,17 @@ public class BuildEditState : BuildState
                 selectedObject.ChangeColor(selectColor);
             }
             context.ReserveUpdateProceduralLadder();
+        }
+        else
+        {
+            Vector3Int curPos = gridLayout.WorldToCell(pointer.transform.position);
 
+            if (context.isOutRangeToPlace(curPos + delta) )
+            {
+                delta = Vector3Int.zero;
+            }
+            curPos += delta;
+            pointer.transform.position = gridLayout.CellToWorld(curPos);
         }
     }
 }

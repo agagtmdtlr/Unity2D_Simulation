@@ -30,7 +30,6 @@ public class MineCollectable : MonoBehaviour
         TryGetComponent(out renderer2d);
         TryGetComponent(out interaction);
         TryGetComponent(out collider2d);
-
     }
 
     private void OnEnable()

@@ -19,12 +19,12 @@ public class JumpMovement : MovementState
 
     public override void End()
     {
-        context.isGrounded = true;
+        //context.isGrounded = true;
     }
 
     public override bool NeedChagne(out MovementCategory category)
     {
-        if(isGrounded)
+        if(Mathf.Abs(velocity.y) < 0.01f)
         {
             category = MovementCategory.Groud;
             return true;
@@ -46,8 +46,8 @@ public class JumpMovement : MovementState
 
     public override void Start()
     {
-        float jump = input.y >= 0f && inputJump ? jumpSpeed : 0f;
-        body.velocity = new Vector2(input.x * moveSpeed, jump);
+        //float jump = input.y >= 0f && inputJump ? jumpSpeed : 0f;
+        //body.velocity = new Vector2(input.x * moveSpeed, jump);
     }
 
     public override void Update()
@@ -61,7 +61,8 @@ public class JumpMovement : MovementState
             velocity.y = 0f;
             animator.SetTrigger("DoubleJump");
             velocity.y = jumpSpeed;
-        }else if(Input.GetButtonUp("Jump") && velocity.y > 0f)
+        }
+        else if(Input.GetButtonUp("Jump") && velocity.y > 0f)
         {
             velocity.y *= 0.5f;
         }

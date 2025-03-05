@@ -4,13 +4,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Tilemaps;
 using System.Linq;
+using Cinemachine;
 
 
-
-public class BuildingHandler : MonoBehaviour
+public class BuildingSystem : MonoBehaviour
 {
-    static private BuildingHandler instance;
-    static public BuildingHandler Instance
+    static private BuildingSystem instance;
+    static public BuildingSystem Instance
     {
         get { return instance; }
     }
@@ -20,6 +20,8 @@ public class BuildingHandler : MonoBehaviour
     Grid grid;
     public Tilemap buildmap;
 
+
+    public Interactor interactor;
 
     public Tilemap overlayMap;
     public TileBase fillTile;
@@ -33,23 +35,37 @@ public class BuildingHandler : MonoBehaviour
     public GameObject pointer;
     public GameObject ladderBottom;
 
+    public GameObject constructMenuUI;
+
+
+    public BuildSet[] buildSets;
     Vector3 cellSize { get { return buildmap.cellSize; } }
 
     BuildState.Mode currentState = BuildState.Mode.None;
 
-    public GameObject currentPrefab;
+    public BuildSet currentBuildSet;
     [HideInInspector] public bool selected = false;
     [HideInInspector] public Placeable selectedPlacement;
     [HideInInspector] public List<Placeable> buildings;
     [HideInInspector] public GameObject buildModeUI;
 
+    public GameObject sidemenuUI;
 
-    UI_ConstructMode_Handler contruct_ui;
+    public bool isOutRangeToPlace(Vector3Int pos)
+    {
+        if (pos.x < beginPos.x || pos.x > endPos.x)
+            return true;
+
+        if (pos.y < beginPos.y || pos.y > endPos.y)
+            return true;
+
+        return false;
+    }
 
     public GameObject CreateCurrentPrefabInstance(Vector3Int pos)
     {
         Vector3 worldPos = gridLayout.CellToWorld(pos);
-        GameObject  prefabinstance = Instantiate(currentPrefab, worldPos, Quaternion.identity);
+        GameObject  prefabinstance = Instantiate(currentBuildSet.buildPrefab, worldPos, Quaternion.identity);
         if( prefabinstance.TryGetComponent(out Placeable p))
         {
             buildings.Add(p);
@@ -77,6 +93,7 @@ public class BuildingHandler : MonoBehaviour
         }
     }
 
+    public LayerMask whatIsGround;
     
     public void UpdateProceduralLadder(Placeable building)
     {
@@ -124,24 +141,48 @@ public class BuildingHandler : MonoBehaviour
             Vector3 origin = gridLayout.CellToWorld(beginInt);
 
             // raycast 검사로 바닥까지의 거리를 계산한다.
-            RaycastHit2D hit =  Physics2D.Raycast(origin, Vector2.down, 1000f, 1 << 12);
+            RaycastHit2D hit =  Physics2D.Raycast(origin, Vector2.down, 1000f, whatIsGround);
             if(hit.collider != null)
             {
+                // 사다리는 아래에 처음 만나는 바닥까지 생성한다.
+                Vector3 ladderPos = new Vector3(origin.x, hit.collider.bounds.max.y, 0);
+                ladderBottom.SetActive(true);
+                var ladderSize = ladderBottom.GetComponent<SpriteRenderer>().size;
+                ladderSize.y = Mathf.Abs(ladderPos.y - origin.y);
+                ladderBottom.GetComponent<SpriteRenderer>().size = ladderSize;
+
+
+                ladderBottom.transform.position = origin + Vector3.down * hit.distance;
+                ladderBottom.transform.position = ladderPos;
             }
-            // 사다리는 아래에 처음 만나는 바닥까지 생성한다.
-            Vector3 ladderPos = new Vector3(origin.x , hit.collider.bounds.max.y,0);
-            ladderBottom.SetActive(true);
-            var ladderSize = ladderBottom.GetComponent<SpriteRenderer>().size;
-            ladderSize.y = Mathf.Abs(ladderPos.y - origin.y);
-            ladderBottom.GetComponent<SpriteRenderer>().size = ladderSize;
-
-
-            ladderBottom.transform.position = origin + Vector3.down * hit.distance;
-            ladderBottom.transform.position = ladderPos;
+            else
+            {
+                ladderBottom.SetActive(false);
+            }
         }
         else
         {
             ladderBottom.SetActive(false);
+        }
+
+        foreach (var bridge in building.bridges)
+        {
+
+            Vector3 bp = bridge.position;
+            RaycastHit2D bhit = Physics2D.Raycast(bp, Vector2.down, 1000f, whatIsGround);
+            if (bhit.collider != null && bhit.distance > 0.5f)
+            {
+                bridge.gameObject.SetActive(true);
+
+                var sr = bridge.GetComponent<SpriteRenderer>();
+                var newSize = sr.size;
+                newSize.y = bhit.distance;
+                sr.size = newSize;
+            }
+            else
+            {
+                bridge.gameObject.SetActive(false);
+            }
         }
     }
 
@@ -169,21 +210,29 @@ public class BuildingHandler : MonoBehaviour
         grid = gridLayout.gameObject.GetComponent<Grid>();
 
         buildings = new List<Placeable>();
-        buildings = FindObjectsOfType<Placeable>().ToList();
-
-        modeContainer[BuildState.Mode.Construct] = new BuildConstructState(this);
-        modeContainer[BuildState.Mode.Edit] = new BuildEditState(this);
-        modeContainer[BuildState.Mode.None] = new BuildNoneState(this);
-        modeContainer[BuildState.Mode.ConstructMenu] = new BuildConstructMenuState(this);
-
+        buildings = FindObjectsOfType<Placeable>().ToList();       
     }
 
-    private void Start()
+    private void OnEnable()
     {
-        pointer.transform.position = gridLayout.CellToWorld(Vector3Int.zero);
-        ChangeMode(BuildState.Mode.Edit);
+        modeContainer[BuildState.Mode.None] = new BuildNoneState(this);
+        modeContainer[BuildState.Mode.SideMenu] = new BuildSideMenuState(this);
+        modeContainer[BuildState.Mode.Construct] = new BuildConstructState(this);
+        modeContainer[BuildState.Mode.Edit] = new BuildEditState(this);
+        modeContainer[BuildState.Mode.ConstructMenu] = new BuildConstructMenuState(this);
 
-        
+        var pointerPos = beginPos + (endPos - beginPos) / 2;
+        pointer.transform.position = gridLayout.CellToWorld(pointerPos);
+        ChangeMode(BuildState.Mode.None);       
+
+        Sensor sensor = GetComponent<Sensor>();
+        sensor.interactEvent.AddListener(BeingBuilding);
+    }
+
+    private void OnDisable()
+    {
+        Sensor sensor = GetComponent<Sensor>();
+        sensor.interactEvent.RemoveListener(BeingBuilding);
     }
 
     private void FixedUpdate()
@@ -196,11 +245,12 @@ public class BuildingHandler : MonoBehaviour
 
     private void Update()
     {
-        
+        modeContainer[currentState].Check();
         modeContainer[currentState].Update();
+
     }
 
-    
+
     public bool isCollapsed = false;
     public List<Placeable> collapsedObjects = new List<Placeable>();
 
@@ -211,7 +261,7 @@ public class BuildingHandler : MonoBehaviour
         Instantiate(prefab, worldPos, Quaternion.identity);
     }
 
-    void SetActiveAllMovableCharacter(bool activate)
+    public void SetActiveAllMovableCharacter(bool activate)
     {
     }
 
@@ -222,36 +272,80 @@ public class BuildingHandler : MonoBehaviour
         modeContainer[currentState].BeginMode();
     }
 
+    public void FillBuildSpaceTile()
+    {
+        Vector3Int cp = beginPos;
+        var wt = fillTile;
+        var lt = lineTile;
+
+        for (int i = cp.x; i < endPos.x; i++)
+        {
+            for (int j = cp.y; j < endPos.y; j++)
+            {
+                overlayMap.SetTile(new Vector3Int(i, j, 0), wt);
+                lineOverlayMap.SetTile(new Vector3Int(i, j, 0), lt);
+            }
+        }
+    }
+
+    public void ClearBuildSpaceTile()
+    {
+        overlayMap.ClearAllTiles();
+        lineOverlayMap.ClearAllTiles();
+    }
+
+    public GameObject buildCameraLaction;
+    public CinemachineVirtualCamera virtualCamera;
+
     public void BeingBuilding()
     {
-        ChangeMode(BuildState.Mode.None);
-        StartCoroutine(MovementPointer());
-        StartCoroutine(SelectPointer());
+        virtualCamera.Follow = buildCameraLaction.transform;
+
+        pointer.SetActive(true);
+        interactor = GetComponent<Sensor>().interactor;
+        ChangeMode(BuildState.Mode.SideMenu);
+
+        Vector3Int cp = beginPos;
+        var wt = fillTile;
+        var lt = lineTile;
+
+        for (int i = cp.x; i < endPos.x; i++)
+        {
+            for (int j = cp.y; j < endPos.y; j++)
+            {
+                overlayMap.SetTile(new Vector3Int(i, j, 0), wt);
+                lineOverlayMap.SetTile(new Vector3Int(i, j, 0), lt);
+            }
+        }
+
+        if (interactor.TryGetComponent(out Rigidbody2D playerRigidBody))
+        {
+            playerRigidBody.isKinematic = true;
+            playerRigidBody.velocity = Vector2.zero;
+        }
+        if (interactor.TryGetComponent(out PlayerController playerController))
+        {
+            playerController.inputLocked = true;
+        }
+
     }
     public void EndBuilding()
     {
+        virtualCamera.Follow = interactor.transform;
 
-    }
+        pointer.SetActive(false);
+        overlayMap.ClearAllTiles();
+        lineOverlayMap.ClearAllTiles();
 
 
-    void StartConstructMode()
-    {
-        SetActiveAllMovableCharacter(false);
-    }
-
-    void EndConstructMode()
-    {
-        SetActiveAllMovableCharacter(true);
-    }
-
-    void StartEditMode()
-    {
-        SetActiveAllMovableCharacter(false);
-    }
-
-    void EndEditMode()
-    {
-        SetActiveAllMovableCharacter(true);
+        if (interactor.TryGetComponent(out Rigidbody2D playerRigidBody))
+        {
+            playerRigidBody.isKinematic = false;
+        }
+        if (interactor.TryGetComponent(out PlayerController playerController))
+        {
+            playerController.inputLocked = false;
+        }
     }
 
     bool CheckInner(Vector3Int pos , Placeable placeable)
@@ -271,113 +365,6 @@ public class BuildingHandler : MonoBehaviour
 
         return false;
     }
-
-    IEnumerator SelectPointer()
-    {
-        while (true)
-        {
-            if (Input.GetKeyDown(KeyCode.E) )
-            {
-                if(!selected)
-                {
-                    Vector3Int curPos = gridLayout.WorldToCell(pointer.transform.position);
-                    // 선택한 위치에 건물이 있는지 확인한다.
-
-                    for(int i = 0; i < buildings.Count; i++)
-                    {
-                        if(CheckInner(curPos, buildings[i]))
-                        {
-                            pointer.transform.position = buildings[i].transform.position;
-                            break;
-                        }
-                    }
-
-                }
-                else if( selected && collapsedObjects.Count > 1) // 2개 겹침 이상은 아무것도 안함
-                {
-
-                }
-                else if(selected && collapsedObjects.Count == 1) // 1개 겹침 > 편집 대상을 교체한다.
-                {
-                    selectedPlacement = collapsedObjects[0];
-                    pointer.transform.position = selectedPlacement.transform.position;
-
-                }
-                else // 선택 해제
-                {
-                    selected = false;
-                    selectedPlacement.ChangeColor(unselectColor);
-                    selectedPlacement = null;
-                }
-            }
-
-            yield return null;
-        }
-    }
-
-    
-    IEnumerator MovementPointer()
-    {
-        while(true)
-        {
-            
-
-            //if(dx !=0 || dy != 0)
-            if (Input.GetButtonDown("Horizontal") || Input.GetButtonDown("Vertical")) 
-            {
-                int dx = (int)Input.GetAxisRaw("Horizontal");
-                int dy = (int)Input.GetAxisRaw("Vertical");
-                Vector3Int delta = new Vector3Int(dx, dy, 0);
-                Vector3Int curPos = gridLayout.WorldToCell(pointer.transform.position);
-                curPos += delta;
-
-                pointer.transform.position = gridLayout.CellToWorld(curPos);
-                if(selected)
-                {
-                    // 선택된 건물이 있다면 건물의 위치도 옮겨준다.
-                    var buildingPos = gridLayout.WorldToCell(selectedPlacement.transform.position);
-                    buildingPos += delta;
-                    selectedPlacement.transform.position = gridLayout.CellToWorld(buildingPos);
-
-                    isCollapsed = false;
-                    collapsedObjects.Clear();
-
-
-                    for (int i = 0; i < buildings.Count; i++)
-                    {
-                        if(buildings[i].IsCollapse(selectedPlacement))
-                        {
-                            isCollapsed = true;
-                            collapsedObjects.Add(buildings[i]);
-                        }
-                        buildings[i].ChangeColor(unselectColor);
-                    }
-
-
-                    if(isCollapsed)
-                    {
-                        Color color = collapsedObjects.Count == 1 ? collapseColor : Color.red;
-
-                        selectedPlacement.ChangeColor(color);
-                        foreach(var obj in collapsedObjects)
-                        {
-                            obj.ChangeColor(color);
-                        }
-                    }    
-                    else
-                    {
-                        selectedPlacement.ChangeColor(selectColor);
-                    }
-                }
-
-            }
-
-            yield return null;
-        }
-    }
-
-    
-
 
     void IntializeOverlayMap()
     {

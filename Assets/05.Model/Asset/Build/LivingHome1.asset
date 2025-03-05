@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: LivingHome1
   m_EditorClassIdentifier: 
   buildname: "\uCCAB\uBC88\uC9F8\uC9D1"
-  icn: {fileID: 0}
-  buildPrefab: {fileID: 0}
+  icn: {fileID: 21300000, guid: 8bf1f5bbb1b6eb24f8d1c6e0579c67d4, type: 3}
+  buildPrefab: {fileID: 8273285779342045454, guid: b8c85aa8cb479424d998bcac4dfd70e6, type: 3}
   buldMaterial:
   - itemStat: {fileID: 11400000, guid: 82dfede8f3ebd0e43a4dacfd32c543ee, type: 2}
-    amount: 1
+    amount: 0
   - itemStat: {fileID: 11400000, guid: ff59afa529863444ba1d7cde47af54dd, type: 2}
-    amount: 1
+    amount: 0

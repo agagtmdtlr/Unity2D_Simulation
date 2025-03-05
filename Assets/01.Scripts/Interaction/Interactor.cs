@@ -13,9 +13,17 @@ public class Interactor : MonoBehaviour
     Sensor closestInteractable;
     Sensor Interacted;
 
+    public bool IsInteracting { get { return Interacted != null; } }
+
     private void Awake()
     {
         TryGetComponent(out collider2d);       
+    }
+
+    void EndInteracting()
+    {
+        Interacted.FocusOut();
+        Interacted = null;
     }
 
     public Sensor GetInteractableObject()
@@ -70,8 +78,7 @@ public class Interactor : MonoBehaviour
         // 상화작용한 대상이 존재한다면? 범위를 벗어났다면 상호작용 안함
         if(Interacted != null && !IsInnerRange(Interacted.transform.position))
         {
-            Interacted.FocusOut();
-            Interacted = null;
+            EndInteracting();
         }
 
         // 상호작용 중이 아니라면...
@@ -91,7 +98,7 @@ public class Interactor : MonoBehaviour
         }
 
         // if interact clicked then find interactable objects
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Interacted is null && Input.GetKeyDown(KeyCode.E))
         {
             if(closestInteractable != null && Interacted != closestInteractable)
             {

@@ -8,6 +8,8 @@ TagManager:
   - Climb
   - Ladder
   - Build
+  - Decoration
+  - Bridge
   layers:
   - Default
   - TransparentFX
@@ -60,8 +62,14 @@ TagManager:
   - name: exterior
     uniqueID: 1997558251
     locked: 0
+  - name: Decoration
+    uniqueID: 4133835475
+    locked: 0
   - name: MidGround
     uniqueID: 2447819919
+    locked: 0
+  - name: Character
+    uniqueID: 424046409
     locked: 0
   - name: ForeGround
     uniqueID: 461098201

@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buildname: "\uC8FC\uBC29"
   icn: {fileID: 21300000, guid: 38d8b79c50fd544429ed02da394a8947, type: 3}
-  buildPrefab: {fileID: 0}
+  buildPrefab: {fileID: 2891606428031276275, guid: 1ee5eda16c2dade4e99ba11b9e942db4, type: 3}
   buldMaterial:
   - itemStat: {fileID: 11400000, guid: 82dfede8f3ebd0e43a4dacfd32c543ee, type: 2}
-    amount: 1
+    amount: 0
   - itemStat: {fileID: 11400000, guid: ff59afa529863444ba1d7cde47af54dd, type: 2}
-    amount: 1
+    amount: 0

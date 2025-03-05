@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [System.Serializable]
-public struct ItemSlot
+public class ItemSlot
 {
     public ItemStat itemInformation;
     public int itemAmount;
@@ -94,26 +94,62 @@ public class InventoryController : MonoBehaviour
         }        
     }
 
+    public ItemSlot FindItem(ItemStat find)
+    {
+        var list = seperatedItems[find.category];
+
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (list[i].itemInformation.itemName == find.itemName)
+            {
+                return list[i];
+            }
+        }
+
+        return null;
+    }
+
+   
+    public int GetAmountOfItem(ItemStat find)
+    {
+        int amount = 0;
+
+        var list = seperatedItems[find.category];
+
+        for(int i = 0; i < list.Count; i++)
+        {
+            if (list[i].itemInformation.itemName == find.itemName)
+            {
+                amount = list[i].itemAmount;
+            }
+        }
+
+        return amount;
+    }
+
     // todo 
-    public void AquireItem(ItemSlot aquiredItem)
+    public void SetAmountOfItem(ItemStat aquiredItem, int amount)
     {
         // 아이템 획득하면 아이템의 카데고리 정보를 읽어서
         // 딕셔너리에 추가해준다.
-        var itemList = seperatedItems[aquiredItem.itemInformation.category];       
-        for(int i = 0; i < itemList.Count; i++)
-        {
-            if( itemList[i].itemInformation.itemName == aquiredItem.itemInformation.itemName )
-            {
-                ItemSlot updatedSlot = itemList[i];
-                updatedSlot.itemAmount += aquiredItem.itemAmount;
+        
 
-                itemList[i] = updatedSlot;
-                return;
-            }            
+        ItemSlot slot = FindItem(aquiredItem);
+        if(slot is  null)  // new Item!!
+        {
+            slot = new ItemSlot();
+            slot.itemInformation = aquiredItem;
+            slot.itemAmount = amount;
+
+            var itemList = seperatedItems[aquiredItem.category];
+            itemList.Add(slot);
+        }
+        else
+        {
+            slot.itemAmount += amount;
         }
 
-        // new Item!!
-        itemList.Add(aquiredItem);        
+
     }
 
 }

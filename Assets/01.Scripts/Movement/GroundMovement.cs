@@ -20,7 +20,7 @@ public class GroundMovement : MovementState
 
     public override void End()
     {
-        context.isGrounded = false;
+        //context.isGrounded = false;
     }
 
     public override bool NeedChagne(out MovementCategory category)
@@ -31,7 +31,7 @@ public class GroundMovement : MovementState
             category = MovementCategory.Jump;
             return true;
         }
-        if(inputJump )
+        if(Mathf.Abs( velocity.y) > 0)
         {
             category = MovementCategory.Jump;
             return true;
@@ -85,6 +85,7 @@ public class GroundMovement : MovementState
     {
         Vector2 velocity = body.velocity;
         velocity.x = input.x * moveSpeed;
+        velocity.y = inputJump && input.y >= 0 ? jumpSpeed : 0f;
 
         body.velocity = !body.isKinematic ? velocity : Vector2.zero;
 
@@ -92,5 +93,6 @@ public class GroundMovement : MovementState
         {
             renderer.flipX = input.x < 0;
         }
+
     }
 }

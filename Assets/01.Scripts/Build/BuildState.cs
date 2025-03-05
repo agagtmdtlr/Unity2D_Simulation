@@ -9,12 +9,13 @@ public abstract class BuildState
     public enum Mode
     {
         None,
+        SideMenu,
         ConstructMenu,
         Construct,
         Edit
     }
 
-    protected BuildingHandler context;
+    protected BuildingSystem context;
 
     public Vector3Int ClampCellPos(Vector3Int pos)
     {
@@ -41,7 +42,7 @@ public abstract class BuildState
     public GridLayout gridLayout { get { return context.gridLayout; } }
 
 
-    public BuildState(BuildingHandler context)
+    public BuildState(BuildingSystem context)
     {
         this.context = context;
     }
@@ -62,31 +63,73 @@ public abstract class BuildState
     public abstract void Check();
 }
 
-
 public class BuildNoneState : BuildState
 {
-    Mode mode;
-    public BuildNoneState(BuildingHandler context) : base(context)
+    public BuildNoneState(BuildingSystem context) : base(context)
     {
+
     }
 
     public override void BeginMode()
     {
-        mode = Mode.Construct;
+    }
+
+    public override void Check()
+    {
+    }
+
+    public override void EndMode()
+    {
+    }
+
+    public override void Update()
+    {
+    }
+}
+
+
+public class BuildSideMenuState : BuildState
+{
+    bool menuSelected = false;
+    Mode mode;
+    public BuildSideMenuState(BuildingSystem context) : base(context)
+    {
+        context.sidemenuUI.transform.GetChild(0).GetComponent<Button>().onClick.AddListener(OnSelectConstruct);
+        context.sidemenuUI.transform.GetChild(1).GetComponent<Button>().onClick.AddListener(OnSelectEdit);
+    }
+
+    public override void BeginMode()
+    {
+        menuSelected = false;
+        mode = Mode.ConstructMenu;
+        context.sidemenuUI.SetActive(true);
     }
 
     public override void Update()
     {
     }
 
+    void OnSelectConstruct()
+    {
+        mode = Mode.ConstructMenu;
+        menuSelected = true;
+    }
+
+    void OnSelectEdit()
+    {
+        mode = Mode.Edit;
+        menuSelected = true;
+    }
+
     public override void Check()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+            context.ChangeMode(Mode.None);
             context.EndBuilding();
         }
 
-        if(Input.GetKeyDown(KeyCode.E))
+        if (menuSelected)
         {
             context.ChangeMode(mode);
         }
@@ -98,6 +141,7 @@ public class BuildNoneState : BuildState
 
     public override void EndMode()
     {
+        context.sidemenuUI.SetActive(false);
     }
 }
 

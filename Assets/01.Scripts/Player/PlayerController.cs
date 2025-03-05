@@ -7,12 +7,11 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
-    
-
     [Header("Ground Info")]
     [SerializeField] public float moveSpeed = 5f;
-    [SerializeField] public float jumpSpeed = 700f;    
-    [SerializeField] public bool isGrounded;
+    [SerializeField] public float jumpSpeed = 700f;
+
+    [SerializeField] public bool isGrounded = false;
 
     [Header("Jump Info")]
     public bool inputJump;
@@ -34,6 +33,7 @@ public class PlayerController : MonoBehaviour
     Animator animator;
     Rigidbody2D body;
     BoxCollider2D collider2d;
+    Interactor interactor;
 
     MovementCategory currentCategory;
     Dictionary<MovementCategory, MovementState> stateContainer;
@@ -49,10 +49,11 @@ public class PlayerController : MonoBehaviour
         TryGetComponent(out animator);
         TryGetComponent(out collider2d);
         TryGetComponent(out body);
+        TryGetComponent(out interactor);
 
         isGrounded = false;
 
-        if(ladderDetection == null || climbDetection == null)
+        if (ladderDetection == null || climbDetection == null)
         {
             Debug.LogAssertion("반드시 detection을 지정해주어야 합니다.");
         }
@@ -72,7 +73,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if(!inputLocked)
+        if(!inputLocked )
         {
             input.x = Input.GetAxisRaw("Horizontal");
             input.y = Input.GetAxisRaw("Vertical");
@@ -82,6 +83,7 @@ public class PlayerController : MonoBehaviour
 
             inputJump = Input.GetButtonDown("Jump");
 
+            isGrounded = IsGrounded();
             animator.SetBool("isGrounded", isGrounded);
             animator.SetFloat("GroundSpeed", body.velocity.x);
             animator.SetFloat("JumpSpeed", body.velocity.y);
@@ -93,17 +95,28 @@ public class PlayerController : MonoBehaviour
         stateContainer[currentCategory].Check();
     }
 
-    
-    private void OnCollisionEnter2D(Collision2D collision)
+
+    public Vector2 boxSize;
+    public float castDistance;
+    public LayerMask whatisGround;
+
+
+
+    bool IsGrounded()
     {
-        if (collision.contacts[0].normal.y > 0.7f)
-            isGrounded = true;
+        var hit = Physics2D.BoxCast(transform.position, boxSize, 0, -transform.up, castDistance, whatisGround);
+        if (hit) 
+        {
+            return hit.normal.y > 0.7f;
+        }
+        else
+        {
+            return false;
+        }
+
     }
 
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        isGrounded = false;
-    }
+    
     private void OnGUI()
     {
         if(body)
@@ -119,5 +132,6 @@ public class PlayerController : MonoBehaviour
         if(collider2d)
             Gizmos.DrawWireSphere(collider2d.bounds.center, 0.1f);
 
+        Gizmos.DrawWireCube(transform.position - transform.up * castDistance, boxSize);
     }
 }
