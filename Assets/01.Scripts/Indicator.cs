@@ -6,17 +6,25 @@ using UnityEngine.UIElements;
 
 public class Indicator : MonoBehaviour
 {
-    public Transform target;
+    [HideInInspector] public Transform target;
     public RectTransform ui;
     public RectTransform tail;
-    public CanvasScaler scaler;
     public float radius = 1.0f;
+
+
+    public void SetTarget(Transform target)
+    { this.target = target; }
 
     private bool IsOffScreen()
     {
-        Vector2 vec = Camera.main.WorldToViewportPoint(target.position);
+        Vector2 vec = Camera.main.WorldToViewportPoint(transform.position);
         if (vec.x < 0 || vec.x > 1 || vec.y <= 0 || vec.y > 1) return true;
         return false;
+    }
+
+    private void OnEnable()
+    {
+        ui = GetComponent<RectTransform>();
     }
 
     private void Update()
@@ -33,8 +41,7 @@ public class Indicator : MonoBehaviour
         Vector3 offset = Vector3.zero;
         if(IsOffScreen())
         {
-            Vector2 dir = target.position - Camera.main.ViewportToWorldPoint(Vector3.one * 0.5f);
-            dir = dir.normalized;
+            Vector2 dir = (target.position - Camera.main.ViewportToWorldPoint(Vector3.one * 0.5f) ).normalized;
             tail.right = dir;
             offset = dir * radius;
         }
