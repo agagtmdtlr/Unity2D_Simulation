@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 public class MineCollectable : MonoBehaviour
 {
@@ -8,24 +9,26 @@ public class MineCollectable : MonoBehaviour
     [SerializeField] float chargeGaugeSuccessLimitation = 3f;
     [SerializeField] float chargeGaugeMax = 5f;
 
-    Collider2D collider2d;
-    Sensor interaction;
     [SerializeField] float hp;
     [SerializeField] bool isPlaying = false;
     [SerializeField] bool isCharging = false;
-
     [SerializeField] float attackSpeed = 1f;
 
+    Collider2D collider2d;
+
+    Sensor sensor;
 
     Rigidbody2D playerRigidBody;
     Controllable control;
     Animator playerAnimator;
     SpriteRenderer playerRender;
     GameObject tool;
+    SpriteRenderer toolRender;
+    Light2D toolLight;
 
     private void Awake()
     {
-        TryGetComponent(out interaction);
+        TryGetComponent(out sensor);
         TryGetComponent(out collider2d);
     }
 
@@ -33,6 +36,8 @@ public class MineCollectable : MonoBehaviour
     {
         hp = 2;
         isPlaying = false;
+        collider2d.enabled = true;
+        GetComponent<SpriteRenderer>().enabled = true;
     }
 
     public void ReadyMining()
@@ -43,9 +48,8 @@ public class MineCollectable : MonoBehaviour
 
         isPlaying = true;
         isCharging = false;
-        collider2d.isTrigger = false;
         chargeGauge = 0f;
-        GameObject player = interaction.interactor.gameObject;
+        GameObject player = sensor.interactor.gameObject;
 
         if (player.TryGetComponent(out playerRigidBody))
         {
@@ -54,7 +58,7 @@ public class MineCollectable : MonoBehaviour
         }
         if (player.TryGetComponent(out control))
         {
-            control.InputLocked = true;
+            control.Lock(this);
         }
         if (player.TryGetComponent(out playerAnimator))
         {
@@ -62,12 +66,11 @@ public class MineCollectable : MonoBehaviour
         }
         if (player.TryGetComponent(out playerRender))
         {
-
         }
-
         tool = player.transform.Find("tool_pickax").gameObject;
-
         tool.SetActive(true);
+        tool.transform.GetChild(0).TryGetComponent(out toolLight);
+        tool.TryGetComponent(out toolRender);
 
         StartCoroutine(PlayMining_Co());
     }
@@ -79,7 +82,12 @@ public class MineCollectable : MonoBehaviour
         rotation.z = Mathf.Lerp(0f, 120f, ratio);
 
         tool.transform.rotation = Quaternion.Euler(rotation);
-        playerRender.color = Color.Lerp(Color.white, Color.red, ratio);
+        toolLight.intensity = Mathf.Lerp(0f, 15f, ratio);
+
+        Color gaugeColor = Color.Lerp(Color.white, Color.red, ratio);
+        toolRender.color = gaugeColor;
+        playerRender.color = gaugeColor;
+
 
         playerAnimator.SetFloat("Charge", ratio);
     }
@@ -100,15 +108,18 @@ public class MineCollectable : MonoBehaviour
                 chargeGauge += Time.deltaTime;
             }
 
-            // 오버차징으로 공격실패
-            if (chargeGauge > chargeGaugeMax)
+            bool isoverCharging = chargeGauge > chargeGaugeMax;
+            if (isoverCharging)
             {
                 yield return StartCoroutine(OverCharging_Co());
             }
-            // 공격 성공
             else if (Input.GetKeyUp(KeyCode.E))
             {
                 yield return StartCoroutine(Attack_Co());
+            }
+            else if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                isPlaying = false;
             }
 
             UpdateChargeAnimation();
@@ -128,7 +139,6 @@ public class MineCollectable : MonoBehaviour
 
         yield return new WaitForSeconds(2f);
         playerAnimator.SetBool("OverCharge", false);
-
     }
 
     IEnumerator Attack_Co()
@@ -152,29 +162,36 @@ public class MineCollectable : MonoBehaviour
             hp -= mineDamage;
         }
         chargeGauge = 0f;
-
         playerAnimator.SetBool("MineSuccess", false);
 
     }
 
     
 
-    // 수확인 완료되지 않고 중간 중단됬을때만 호출된다.
     void StopMining()
     {
+        if(hp <= 0)
+        {
+            if(TryGetComponent(out Spawnable spawnable))
+            {
+                spawnable.Spawn(transform.position);
+            }
+
+            GetComponent<SpriteRenderer>().enabled = false;
+            collider2d.enabled = false;
+        }
+
+        chargeGauge = 0;
+
         isPlaying = false;
-        collider2d.isTrigger = false;
-        control.InputLocked = false;
+        control.UnLock(this);
         playerRigidBody.isKinematic = false;
         playerRigidBody.velocity = Vector2.zero;
         playerAnimator.SetBool("Mine", false);
         playerRender.color = Color.white;
+        toolRender.color = Color.white;
         tool.SetActive(false);
+        toolLight.intensity = 0;
     }
 
-    // 수확이 완료됬을때만 호출된다
-    void EndMining()
-    {
-
-    }
 }

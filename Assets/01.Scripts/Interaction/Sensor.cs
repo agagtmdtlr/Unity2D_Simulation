@@ -27,11 +27,17 @@ public enum InteractTriggerWay
     Manual
 }
 
-public class InteractEvent
+[System.Serializable]
+public class SensorTriggerEvent : UnityEvent<SensorTriggeredEventArgs> { }
+
+public class SensorTriggeredEventArgs
 {
-    public delegate void InteractHandler();
-    public event InteractHandler HasInteracted; // 
-    public void CallInteractEvent() => HasInteracted?.Invoke();
+    public Sensor sender;
+
+    public SensorTriggeredEventArgs(Sensor sender)
+    {
+        this.sender = sender;
+    }
 }
 
 public class Sensor : MonoBehaviour
@@ -46,20 +52,11 @@ public class Sensor : MonoBehaviour
     [SerializeField] private IFocusAction focusAction = null;
     [SerializeField] private LayerMask[] whatIsInteractor;
 
-    public UnityEvent interactEvent;
+    public SensorTriggerEvent interactEventFromInspector;
+
+    public UnityEvent<Sensor> interactEvent;
 
     Collider2D collider2d;
-
-
-    protected InteractEvent interaction = new InteractEvent();
-    public InteractEvent Interact
-    {
-        get
-        {
-            if (interaction == null) interaction = new InteractEvent();
-            return interaction;
-        }
-    }
 
     private Interactor _interactor;
     public Interactor interactor
@@ -77,8 +74,7 @@ public class Sensor : MonoBehaviour
             consumed = true;
 
         this._interactor = interactor;
-        interactEvent.Invoke();
-        //interaction.CallInteractEvent();
+        interactEvent.Invoke(this);
     }
 
 

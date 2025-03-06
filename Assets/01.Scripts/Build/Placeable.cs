@@ -1,9 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Build.Pipeline.Utilities;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using static UnityEditor.PlayerSettings;
 
 public class Placeable : MonoBehaviour
 {
@@ -17,7 +15,6 @@ public class Placeable : MonoBehaviour
     public List<PlatformGenerator> platformGenerators = new List<PlatformGenerator>();
 
     public GameObject ladderBottom;
-
 
     public void ExtendLadderToGround(LayerMask layerMask)
     {

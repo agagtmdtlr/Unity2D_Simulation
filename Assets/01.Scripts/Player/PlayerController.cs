@@ -8,9 +8,9 @@ using UnityEngine.UI;
 public class PlayerController : MonoBehaviour
 {
     [Header("Ground Info")]
-    [SerializeField] public float moveSpeed = 5f;
-    [SerializeField] public float jumpSpeed = 700f;
-    [SerializeField] public bool isGrounded = false;
+    public float moveSpeed = 5f;
+    public float jumpSpeed = 700f;
+    public bool isGrounded = false;
 
     [Header("Climb Info")]
     public Detection climbDetection;
@@ -96,7 +96,6 @@ public class PlayerController : MonoBehaviour
         {
             return false;
         }
-
     }
 
     

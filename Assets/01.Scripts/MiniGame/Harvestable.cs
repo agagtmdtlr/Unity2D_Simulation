@@ -7,20 +7,17 @@ public class Harvestable : MonoBehaviour
 {
     GameObject cuttedTreeTop;
 
-
     SpriteRenderer treeRenderer;
     Sensor interaction;
     WoodCuttingSequencer sequencer;
+    Spawnable spawnable;
 
     bool consumed;
     [SerializeField] public int currentState = 0;
-
-    [SerializeField] int spawnCount;
-    [SerializeField] ItemStat spwanItem;
     [SerializeField] Sprite[] spritePerStages;
-    [SerializeField] GameObject spawnPrefab;
+    [SerializeField] LayerMask whatIsTool;
 
-    bool isToolInteracting = false;
+    [SerializeField] bool isToolInteracting = false;
     ParticleSystem leafEffect;
     float effectPlayTime = 0f;
 
@@ -35,16 +32,13 @@ public class Harvestable : MonoBehaviour
         currentState = Mathf.Min(currentState + 1, spritePerStages.Length - 1);
 
         treeRenderer.sprite = spritePerStages[currentState];
-
-         
-       
     }
 
     private void Awake()
     {
         TryGetComponent(out treeRenderer);
         TryGetComponent(out interaction);
-        interaction.Interact.HasInteracted += BeginHarvest;
+        TryGetComponent(out spawnable);
 
         cuttedTreeTop = transform.GetChild(0).gameObject;
 
@@ -56,6 +50,12 @@ public class Harvestable : MonoBehaviour
     private void OnEnable()
     {
         consumed = false;
+        interaction.interactEvent.AddListener(BeginHarvest);
+    }
+
+    private void OnDisable()
+    {
+        interaction.interactEvent.RemoveListener(BeginHarvest);
     }
 
     private void Update()
@@ -96,21 +96,14 @@ public class Harvestable : MonoBehaviour
 
         yield return new WaitForSeconds(4.0f);
 
-        GameObject spawnObject = Instantiate(spawnPrefab, transform.position, Quaternion.identity);
-        if (TryGetComponent(out Collectable collectable))
-        {
-            collectable.item.itemInformation = spwanItem;
-            collectable.item.itemAmount = spawnCount;
-        }
-
-
+        spawnable.Spawn(transform.position);
         cuttedTreeTop.SetActive(false);
 
 
         yield break;
     }
 
-    public void BeginHarvest() 
+    public void BeginHarvest(Sensor sensor) 
     {
         if (consumed)
             return;
@@ -120,7 +113,8 @@ public class Harvestable : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.gameObject.layer == LayerMask.NameToLayer("Tool"))
+        LayerMask colLayer = 1 << collision.gameObject.layer;
+        if(colLayer == whatIsTool)
         {
             isToolInteracting = true;
         }
@@ -128,7 +122,8 @@ public class Harvestable : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.gameObject.layer == LayerMask.NameToLayer("Tool"))
+        LayerMask colLayer = 1 << collision.gameObject.layer;
+        if (colLayer == whatIsTool)
         {
             isToolInteracting = false;
         }

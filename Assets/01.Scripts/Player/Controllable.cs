@@ -7,14 +7,35 @@ public class Controllable : MonoBehaviour
     [Header("Input Command")]
     bool inputLocked = false;
 
-    public bool InputLocked { get { return inputLocked; } 
-        set
-        { 
-            inputLocked = value;
-            updatedThisFrame = false;
+    Component currentLocker;
+
+    public bool Lock(Component requester)
+    {
+        if(currentLocker == null)
+        {
+            currentLocker = requester;
+            inputLocked = true;
             UpdateInput();
+            return true;
         }
+
+        return false;
     }
+
+    public bool UnLock(Component requester)
+    {
+        if(currentLocker == requester)
+        {
+            currentLocker = null;
+            inputLocked = false;
+            UpdateInput();
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool InputLocked { get { return inputLocked; } }
 
     bool inputInteract = false;
     public bool InputInteract {  get { UpdateInput(); return inputInteract; } }

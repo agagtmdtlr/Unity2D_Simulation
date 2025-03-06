@@ -25,7 +25,7 @@ public class Collectable : MonoBehaviour
         interactable.interactEvent.RemoveListener( OnColleted);
     }
 
-    public void OnColleted()
+    public void OnColleted(Sensor sensor)
     {
         if (interactable.interactor.TryGetComponent(out InventoryController inventory))
         {

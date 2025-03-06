@@ -1383,7 +1383,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_77
+      name: food_3
       rect:
         serializedVersion: 2
         x: 266
@@ -2328,10 +2328,10 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_131
+      name: fish_2
       rect:
         serializedVersion: 2
-        x: 392
+        x: 394
         y: 927
         width: 122
         height: 127
@@ -3735,7 +3735,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_213
+      name: fish_3
       rect:
         serializedVersion: 2
         x: 1058
@@ -3798,7 +3798,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_217
+      name: fish_4
       rect:
         serializedVersion: 2
         x: 1599
@@ -4134,7 +4134,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_235
+      name: food_0
       rect:
         serializedVersion: 2
         x: 1735
@@ -4155,7 +4155,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_236
+      name: food_1
       rect:
         serializedVersion: 2
         x: 1868
@@ -4239,7 +4239,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_241
+      name: vegetable_1
       rect:
         serializedVersion: 2
         x: 422
@@ -4491,7 +4491,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_256
+      name: food_vegetable
       rect:
         serializedVersion: 2
         x: 2
@@ -4638,7 +4638,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_263
+      name: fish_5
       rect:
         serializedVersion: 2
         x: 927
@@ -4838,6 +4838,14 @@ TextureImporter:
     secondaryTextures: []
     nameFileIdTable:
       fish: -133061326
+      fish_2: -310458132
+      fish_3: -1248204676
+      fish_4: 2103861394
+      fish_5: 1981837404
+      food_0: -520981346
+      food_1: 1427537454
+      food_3: -1270611945
+      food_vegetable: -913130056
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_0: 1271129496
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_1: -1403079660
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_100: -1636172840
@@ -4873,7 +4881,6 @@ TextureImporter:
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_129: -2147066799
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_13: 1015823627
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_130: -1241651646
-      sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_131: -310458132
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_132: 433000698
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_133: 1730193143
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_134: -784128135
@@ -4961,11 +4968,9 @@ TextureImporter:
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_210: -306556446
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_211: 644603397
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_212: 434617014
-      sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_213: -1248204676
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_214: -746293790
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_215: 1742266213
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_216: 1372100398
-      sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_217: 2103861394
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_218: 1419969583
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_219: 881539419
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_22: -1294264943
@@ -4985,14 +4990,11 @@ TextureImporter:
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_232: 885992355
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_233: 1396303751
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_234: 545795709
-      sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_235: -520981346
-      sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_236: 1427537454
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_237: -1914501262
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_238: 1957342887
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_239: 373343233
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_24: -1555529523
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_240: 198293966
-      sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_241: 1782419516
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_242: 1860950527
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_243: -617445552
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_244: 72797353
@@ -5008,7 +5010,6 @@ TextureImporter:
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_253: -1793633527
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_254: -1736853499
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_255: 765945022
-      sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_256: -913130056
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_257: -747808177
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_258: -1195329292
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_259: 1320302187
@@ -5016,7 +5017,6 @@ TextureImporter:
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_260: -127063964
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_261: 1229158061
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_262: -1776260945
-      sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_263: 1981837404
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_264: 888098068
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_265: 156232094
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_266: 1704607961
@@ -5080,7 +5080,6 @@ TextureImporter:
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_74: 2071452656
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_75: -1685340282
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_76: -1482411016
-      sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_77: -1270611945
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_78: -34702661
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_79: -677214564
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_8: -1959336912
@@ -5107,6 +5106,7 @@ TextureImporter:
       sactx-0-2048x2048-BC7-ItemIcons-b9479ff4_99: -1910093460
       stone: -1015946266
       vegetable: 621722181
+      vegetable_1: 1782419516
       wood: -1615048687
       wood_2: 1521959722
   mipmapLimitGroupName: 

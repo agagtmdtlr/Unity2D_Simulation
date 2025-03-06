@@ -36,7 +36,7 @@ public class NPCInteractable : MonoBehaviour
         }
     }
 
-    public void OpenNpcInteractSelector()
+    public void OpenNpcInteractSelector(Sensor sensor)
     {
         if( interaction.interactor.TryGetComponent(out NPCInteractController interactController) )
         {
@@ -84,12 +84,13 @@ public class NPCInteractable : MonoBehaviour
 
     private void OnEnable()
     {
-        interaction.Interact.HasInteracted += OpenNpcInteractSelector;
+        
+        interaction.interactEvent.AddListener(OpenNpcInteractSelector);
     }
 
     private void OnDisable()
     {
-        interaction.Interact.HasInteracted -= OpenNpcInteractSelector;
+        interaction.interactEvent.RemoveListener(OpenNpcInteractSelector);
     }
 }
 

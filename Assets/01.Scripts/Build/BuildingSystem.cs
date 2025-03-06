@@ -197,13 +197,11 @@ public class BuildingSystem : MonoBehaviour
         ChangeMode(BuildState.Mode.None);       
 
         Sensor sensor = GetComponent<Sensor>();
-        sensor.interactEvent.AddListener(BeingBuilding);
     }
 
     private void OnDisable()
     {
         Sensor sensor = GetComponent<Sensor>();
-        sensor.interactEvent.RemoveListener(BeingBuilding);
     }
 
     private void FixedUpdate()
@@ -261,12 +259,12 @@ public class BuildingSystem : MonoBehaviour
     public GameObject buildCameraLaction;
     public CinemachineVirtualCamera virtualCamera;
 
-    public void BeingBuilding()
+    public void BeingBuilding(Sensor sensor)
     {
         virtualCamera.Follow = buildCameraLaction.transform;
 
         pointer.SetActive(true);
-        interactor = GetComponent<Sensor>().interactor;
+        interactor = sensor.interactor;
         ChangeMode(BuildState.Mode.SideMenu);
 
         Vector3Int cp = beginPos;
@@ -289,7 +287,7 @@ public class BuildingSystem : MonoBehaviour
         }
         if (interactor.TryGetComponent(out Controllable control))
         {
-            control.InputLocked = true;
+            control.Lock(this);
         }
 
     }
@@ -306,9 +304,9 @@ public class BuildingSystem : MonoBehaviour
         {
             playerRigidBody.isKinematic = false;
         }
-        if (interactor.TryGetComponent(out Controllable playerController))
+        if (interactor.TryGetComponent(out Controllable control))
         {
-            playerController.InputLocked = false;
+            control.UnLock(this);
         }
     }
 

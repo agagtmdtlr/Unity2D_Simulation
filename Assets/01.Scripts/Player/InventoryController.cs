@@ -14,17 +14,19 @@ public class InventoryController : MonoBehaviour
 {
     UI_Inventory inventory_ui;
 
-    PlayerController playerController;
+    bool inventoryOpened = false;
     Controllable control;
     ItemCategory selectedCategory;
 
     [SerializeField] ItemSlot[] items;
+    public ItemSlot[] Items { get { return items; } }
+
     Dictionary<ItemCategory, List<ItemSlot>> seperatedItems;
 
     private void Awake()
     {
         inventory_ui = FindAnyObjectByType<UI_Inventory>(FindObjectsInactive.Include);
-        TryGetComponent(out playerController);
+        TryGetComponent(out control);
 
         seperatedItems = new Dictionary<ItemCategory, List<ItemSlot>>();
 
@@ -49,12 +51,20 @@ public class InventoryController : MonoBehaviour
         // 인벤토리가 눌리면 UI가 활성화되어야 한다.
         if( Input.GetKeyDown(KeyCode.R) )
         {
-            control.InputLocked = !control.InputLocked;
             // 인벤토리가 열렸다면 화면을 초기화 해준다.
-            if(control.InputLocked)
+            if(inventoryOpened is false )
             {
-                ItemCategory defaultCategory = (ItemCategory)(0);
-                inventory_ui.ShowInventory(defaultCategory, seperatedItems[defaultCategory]);
+                if (control.Lock(this))
+                {
+                    inventoryOpened = true;
+                    ItemCategory defaultCategory = (ItemCategory)(0);
+                    inventory_ui.ShowInventory(defaultCategory, seperatedItems[defaultCategory]);
+                }
+            }
+            else
+            {
+                inventoryOpened = false;
+                control.UnLock(this);
             }
 
             inventory_ui.gameObject.SetActive(control.InputLocked);

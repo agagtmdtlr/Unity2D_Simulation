@@ -8,6 +8,7 @@ public class Interactor : MonoBehaviour
     Controllable control;
     Collider2D collider2d;
     public float interactionRange = 1.0f;
+    public Vector3 interactionOffset;
     [SerializeField] private LayerMask whatIsInteractable;
     List<Sensor> founditeractables = new List<Sensor>();
 
@@ -35,7 +36,7 @@ public class Interactor : MonoBehaviour
         {
             Collider2D[] colliders =
                 Physics2D.OverlapCircleAll(
-                    collider2d.bounds.center,
+                    collider2d.bounds.center + interactionOffset,
                     interactionRange,
                     whatIsInteractable);
 
@@ -71,7 +72,7 @@ public class Interactor : MonoBehaviour
 
     private bool IsInnerRange(Vector3 position)
     {
-        return Vector3.Distance(position, collider2d.bounds.center) <= interactionRange;
+        return Vector3.Distance(position, collider2d.bounds.center + interactionOffset) <= interactionRange;
     }
 
     void Update()
@@ -115,7 +116,7 @@ public class Interactor : MonoBehaviour
         if(collider2d)
         {
             Gizmos.color = Color.magenta;
-            Gizmos.DrawWireSphere(collider2d.bounds.center, interactionRange);
+            Gizmos.DrawWireSphere(collider2d.bounds.center + interactionOffset, interactionRange);
         }
     }
 }

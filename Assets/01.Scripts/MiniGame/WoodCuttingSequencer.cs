@@ -34,8 +34,7 @@ public class WoodCuttingSequencer : MonoBehaviour
         isPlaying = false;
 
         rb.isKinematic = false;
-        control.InputLocked = false;
-
+        control.UnLock(this);
         animator.SetBool("Wood", false);
 
         gameObject.SetActive(false);
@@ -64,7 +63,7 @@ public class WoodCuttingSequencer : MonoBehaviour
 
         if( player.TryGetComponent(out control))
         {
-            control.InputLocked = true;
+            control.Lock(this);
         }
 
         if (player.TryGetComponent(out animator))

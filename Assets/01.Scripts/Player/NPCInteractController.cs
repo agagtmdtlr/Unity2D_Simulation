@@ -46,7 +46,6 @@ public class NPCInteractController : MonoBehaviour
     float inputX, inputY;
 
 
-
     private void Awake()
     {
         interactable = null;
@@ -55,7 +54,6 @@ public class NPCInteractController : MonoBehaviour
 
         TryGetComponent(out inventoryHandler);
         TryGetComponent(out body);
-
     }
 
     private void Update()
