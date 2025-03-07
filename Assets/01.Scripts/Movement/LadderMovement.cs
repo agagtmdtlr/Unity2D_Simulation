@@ -22,9 +22,9 @@ public class LadderMovement : MovementState
         body.velocity = new Vector2(input.x * moveSpeed, inputJump ? jumpSpeed : 0f);
     }
 
-    public override bool NeedChagne(out MovementCategory category)
+    public override bool NeedChagne(out MovementMode category)
     {
-        category = MovementCategory.Ladder;
+        category = MovementMode.Ladder;
         bool isClosedGround = false;
         // only check move direction and reached ground
         if (input.y < 0f)
@@ -53,13 +53,13 @@ public class LadderMovement : MovementState
 
         if ((isClosedGround || !detection.isInner))
         {
-            category = MovementCategory.Groud;
+            category = MovementMode.Groud;
             return true;
         }
 
         if((inputJump && input_Abs.x > 0f))
         {
-            category = MovementCategory.Jump;
+            category = MovementMode.Jump;
             return true;
         }
 

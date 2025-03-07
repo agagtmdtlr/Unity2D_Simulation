@@ -22,25 +22,25 @@ public class JumpMovement : MovementState
         //context.isGrounded = true;
     }
 
-    public override bool NeedChagne(out MovementCategory category)
+    public override bool NeedChagne(out MovementMode category)
     {
         if(Mathf.Abs(velocity.y) < 0.01f)
         {
-            category = MovementCategory.Groud;
+            category = MovementMode.Groud;
             return true;
         }
         if (climb.isInner && input.y > 0)
         {
-            category = MovementCategory.Climb;
+            category = MovementMode.Climb;
             return true;
         }
         if (ladder.isInner && Mathf.Abs(input.y) > 0.1f)
         {
-            category = MovementCategory.Ladder;
+            category = MovementMode.Ladder;
             return true;
         }
 
-        category = MovementCategory.Jump;
+        category = MovementMode.Jump;
         return false;
     }
 

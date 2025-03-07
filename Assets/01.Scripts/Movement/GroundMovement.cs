@@ -23,22 +23,22 @@ public class GroundMovement : MovementState
         //context.isGrounded = false;
     }
 
-    public override bool NeedChagne(out MovementCategory category)
+    public override bool NeedChagne(out MovementMode category)
     {
-        category = MovementCategory.Groud;
+        category = MovementMode.Groud;
         if(isGrounded == false)
         {
-            category = MovementCategory.Jump;
+            category = MovementMode.Jump;
             return true;
         }
         if(Mathf.Abs( velocity.y) > 0)
         {
-            category = MovementCategory.Jump;
+            category = MovementMode.Jump;
             return true;
         }
         if (climb.isInner && input.y > 0)
         {
-            category = MovementCategory.Climb;
+            category = MovementMode.Climb;
             return true;
         }
         if (ladder.isInner && Mathf.Abs(input.y) > 0.1f)
@@ -70,7 +70,7 @@ public class GroundMovement : MovementState
             }
 
             if(isCorretToBegin)
-                category = MovementCategory.Ladder;
+                category = MovementMode.Ladder;
             return isCorretToBegin;
         }
 

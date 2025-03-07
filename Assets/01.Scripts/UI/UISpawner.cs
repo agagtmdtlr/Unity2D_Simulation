@@ -3,37 +3,50 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class UISpawner : MonoBehaviour
+public class UISpawner : Globalable<UISpawner>
 {
     [SerializeField] GameObject canvas;
     [SerializeField] GameObject alertPrefab;
+    [SerializeField] GameObject interactionBubblePrefab;
 
+    Dictionary<string, GameObject> uicontainers;
 
-    GameObject alertContainer = null;
-
-    static private UISpawner instance = null;
-    static public UISpawner Instance {  get { return instance; } }
-
-    GameObject SpawnAlertUI_instance()
+    protected override void Awake_internal()
     {
-        GameObject alertUI = null;
+        uicontainers = new Dictionary<string, GameObject>();
+    }
 
-        if (instance.alertContainer is null)
+    GameObject SpawnUI_interanl(GameObject prefab, string containername)
+    {
+        Debug.Log("Request Create UI");
+
+        GameObject ui = null;
+        
+        GameObject container = null;
+        if ( !uicontainers.ContainsKey(containername) )
         {
-            alertUI = new GameObject("alert_container");
-            alertUI.transform.SetParent(instance.canvas.transform);
-            alertUI.transform.position = Vector3.zero;
-            alertUI.transform.localScale = Vector3.one;
+            container = new GameObject(containername);
+            container.transform.SetParent(canvas.transform);
+            container.transform.position = Vector3.zero;
+            container.transform.localScale = Vector3.one;
+
+            uicontainers[containername] = container;
         }
+        container = uicontainers[containername];
 
-        alertUI = Instantiate(alertPrefab, instance.alertContainer.transform);
+        ui = Instantiate(prefab, container.transform);
 
-        return alertUI;
+        return ui;
     }
 
-    static public GameObject SpawnAlertUI()
+
+    public GameObject SpawnAlertUI()
     {
-        return instance.SpawnAlertUI_instance();
+        return Instance.SpawnUI_interanl(Instance.alertPrefab, "alert_container");
     }
-    
+
+    public GameObject SpawnInteractionBubbleUI()
+    {
+        return SpawnUI_interanl(interactionBubblePrefab, "interacton_bubble_container");
+    }
 }

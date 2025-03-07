@@ -245,7 +245,7 @@ MonoBehaviour:
   consumeLife: 1
   triggerWay: 3
   whatIsInteractor:
-  - serializedVersion: 2
+    serializedVersion: 2
     m_Bits: 8
   interactEvent:
     m_PersistentCalls:

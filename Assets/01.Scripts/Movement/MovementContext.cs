@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public enum MovementCategory
+public enum MovementMode
 {
     Groud,
     Jump,
@@ -41,10 +41,10 @@ public abstract class MovementState
     public abstract void Start();
     public abstract void End();
 
-    public abstract bool NeedChagne(out MovementCategory category);
+    public abstract bool NeedChagne(out MovementMode category);
     public void Check()
     {
-        if (NeedChagne(out MovementCategory category))
+        if (NeedChagne(out MovementMode category))
         {
             context.ChangeState(category);
         }

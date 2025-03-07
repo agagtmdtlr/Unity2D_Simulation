@@ -11,6 +11,9 @@ public class UI_NPC_Interaction : MonoBehaviour
     public int choiceCnt { get; private set; }
     public Vector3 showWorldPosiiton;
 
+    public Button feedButton;
+    public Button loveButton;
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -30,7 +33,6 @@ public class UI_NPC_Interaction : MonoBehaviour
         {
             gameObject.SetActive(false);
         }
-
     }
 
     public void BindSelectEvent(int index, UnityAction action)

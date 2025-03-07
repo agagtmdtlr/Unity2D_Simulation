@@ -3,11 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public interface IInteractAction
-{
-    public void CallInteract(Interactor interactor);
-}
-
 public interface IFocusAction
 {
     public void FocusIn();
@@ -19,12 +14,13 @@ public enum InteractConsumeLife
     ReUsable
 }
 
+[System.Flags]
 public enum InteractTriggerWay
 {
-    EnterTrigger,
-    StayTrigger,
-    OutTrigger,
-    Manual
+    EnterTrigger = 1 << 0,
+    StayTrigger = 1 << 1,
+    OutTrigger = 1 << 2,
+    Manual = 1 << 3
 }
 
 [System.Serializable]
@@ -50,9 +46,7 @@ public class Sensor : MonoBehaviour
     public InteractTriggerWay TriggerWay { get { return triggerWay; } }
 
     [SerializeField] private IFocusAction focusAction = null;
-    [SerializeField] private LayerMask[] whatIsInteractor;
-
-    public SensorTriggerEvent interactEventFromInspector;
+    [SerializeField] private LayerMask whatIsInteractor;
 
     public UnityEvent<Sensor> interactEvent;
 
@@ -63,7 +57,6 @@ public class Sensor : MonoBehaviour
     {
         get { return _interactor; }
     }
-
 
     public virtual void CallInteract(Interactor interactor)
     {
@@ -102,15 +95,9 @@ public class Sensor : MonoBehaviour
     private void OnEnable()
     {
         consumed = false;
-        LayerMask finalMask = 0;
-
-        foreach (var layer in whatIsInteractor)
-        {
-            finalMask |= layer;
-        }
 
         if(collider2d != null)
-            collider2d.callbackLayers |= finalMask;
+            collider2d.callbackLayers |= whatIsInteractor;
     }
 
     void Consume()
@@ -120,7 +107,7 @@ public class Sensor : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (triggerWay.Equals(InteractTriggerWay.EnterTrigger) && !consumed)
+        if ( triggerWay.HasFlag(InteractTriggerWay.EnterTrigger) && !consumed)
         {
              if (collision.TryGetComponent(out Interactor interactor))
             {
@@ -133,7 +120,7 @@ public class Sensor : MonoBehaviour
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if(triggerWay.Equals(InteractTriggerWay.StayTrigger) && !consumed)
+        if(triggerWay.HasFlag(InteractTriggerWay.StayTrigger) && !consumed)
         {
             if(collision.TryGetComponent(out Interactor interactor))
             {
@@ -146,7 +133,7 @@ public class Sensor : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (triggerWay.Equals(InteractTriggerWay.OutTrigger) && !consumed)
+        if (triggerWay.HasFlag(InteractTriggerWay.OutTrigger) && !consumed)
         {
             if (collision.TryGetComponent(out Interactor interactor))
             {

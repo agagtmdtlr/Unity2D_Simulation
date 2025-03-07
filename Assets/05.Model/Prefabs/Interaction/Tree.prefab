@@ -155,6 +155,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 989e366b4d392af4cb4d3c3e52b92ce1, type: 3}
   - {fileID: 21300000, guid: ec89b855287598447a574472265766b3, type: 3}
   - {fileID: 21300000, guid: 749a91e05ebe05043b01320b0d551422, type: 3}
+  whatIsTool:
+    serializedVersion: 2
+    m_Bits: 1024
+  isToolInteracting: 0
 --- !u!114 &2005014080001400510
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -182,9 +186,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   consumeLife: 1
-  triggerWay: 3
+  triggerWay: 8
   whatIsInteractor:
-  - serializedVersion: 2
+    serializedVersion: 2
     m_Bits: 8
   interactEvent:
     m_PersistentCalls:
@@ -192,10 +196,10 @@ MonoBehaviour:
       - m_Target: {fileID: 5640588500413627707}
         m_TargetAssemblyTypeName: Harvestable, Assembly-CSharp
         m_MethodName: BeginHarvest
-        m_Mode: 1
+        m_Mode: 2
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgumentAssemblyTypeName: Sensor, Assembly-CSharp
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 

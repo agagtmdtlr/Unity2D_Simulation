@@ -169,7 +169,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   consumeLife: 0
-  triggerWay: 0
+  triggerWay: 1
   whatIsInteractor: []
   interactEvent:
     m_PersistentCalls:

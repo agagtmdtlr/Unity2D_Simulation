@@ -26,9 +26,9 @@ public class PlayerController : MonoBehaviour
     BoxCollider2D collider2d;
 
 
-    MovementCategory currentCategory;
-    Dictionary<MovementCategory, MovementState> stateContainer;
-    public void ChangeState(MovementCategory toCategory)
+    MovementMode currentCategory;
+    Dictionary<MovementMode, MovementState> stateContainer;
+    public void ChangeState(MovementMode toCategory)
     {
         stateContainer[currentCategory].End();
         currentCategory = toCategory;
@@ -49,16 +49,16 @@ public class PlayerController : MonoBehaviour
             Debug.LogAssertion("반드시 detection을 지정해주어야 합니다.");
         }
 
-        stateContainer = new Dictionary<MovementCategory, MovementState>();
-        currentCategory = MovementCategory.Groud;
+        stateContainer = new Dictionary<MovementMode, MovementState>();
+        currentCategory = MovementMode.Groud;
 
-        stateContainer[MovementCategory.Groud] = 
+        stateContainer[MovementMode.Groud] = 
             new GroundMovement(this, climbDetection,ladderDetection);
-        stateContainer[MovementCategory.Jump] = 
+        stateContainer[MovementMode.Jump] = 
             new JumpMovement(this, climbDetection,ladderDetection);
-        stateContainer[MovementCategory.Climb] = 
+        stateContainer[MovementMode.Climb] = 
             new ClimbMovement(this, climbDetection, climbBeginPosYOffset, climbEndPosYOffset);
-        stateContainer[MovementCategory.Ladder] = 
+        stateContainer[MovementMode.Ladder] = 
             new LadderMovement(this, ladderDetection);
     }
 

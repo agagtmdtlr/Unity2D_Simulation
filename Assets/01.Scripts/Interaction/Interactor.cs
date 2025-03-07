@@ -46,7 +46,7 @@ public class Interactor : MonoBehaviour
                 {
                     if(!interaciton.consumed)
                     {
-                        if(interaciton.TriggerWay == InteractTriggerWay.Manual)
+                        if(interaciton.TriggerWay.HasFlag(InteractTriggerWay.Manual))
                             founditeractables.Add(interaciton);
 
                     }

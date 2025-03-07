@@ -4,23 +4,23 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class NPCInteractable : MonoBehaviour
+public class AIInteractable : MonoBehaviour
 {
-    UI_NPC_Interaction npc_choice_ui;
+    AIController aiController;
+    UI_NPC_Interaction ui;
     [SerializeField] GameObject bubble_chat_ui;
     Text bubble_chat_text;
 
     BoxCollider2D box;
-    Sensor interaction;
 
     [SerializeField] Dialogue dialogue;
     int dialogueIndex = 0;
 
-    private void Awake()
+    private void Start()
     {
-        npc_choice_ui = FindAnyObjectByType<UI_NPC_Interaction>(FindObjectsInactive.Include);
+        ui = FindAnyObjectByType<UI_NPC_Interaction>(FindObjectsInactive.Include);
+        TryGetComponent(out aiController);
         TryGetComponent(out box);
-        TryGetComponent(out interaction);
 
         bubble_chat_text = bubble_chat_ui.transform.GetComponentInChildren<Text>();
     }
@@ -36,12 +36,8 @@ public class NPCInteractable : MonoBehaviour
         }
     }
 
-    public void OpenNpcInteractSelector(Sensor sensor)
+    public void BeginAiInteraction(Sensor sensor)
     {
-        if( interaction.interactor.TryGetComponent(out NPCInteractController interactController) )
-        {
-            interactController.StartNpcInteractMode(this);
-        }
     }
 
     private void BeginDialogue()
@@ -80,17 +76,6 @@ public class NPCInteractable : MonoBehaviour
             bubble_chat_text.text += c;
             yield return wfs;
         }
-    }
-
-    private void OnEnable()
-    {
-        
-        interaction.interactEvent.AddListener(OpenNpcInteractSelector);
-    }
-
-    private void OnDisable()
-    {
-        interaction.interactEvent.RemoveListener(OpenNpcInteractSelector);
     }
 }
 

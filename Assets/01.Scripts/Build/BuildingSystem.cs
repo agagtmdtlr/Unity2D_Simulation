@@ -8,14 +8,8 @@ using Cinemachine;
 using Unity.VisualScripting;
 
 
-public class BuildingSystem : MonoBehaviour
+public class BuildingSystem : Globalable<BuildingSystem>
 {
-    static private BuildingSystem instance;
-    static public BuildingSystem Instance
-    {
-        get { return instance; }
-    }
-
     [HideInInspector] public Interactor interactor;
 
     [Header("Tile Map")]
@@ -173,17 +167,7 @@ public class BuildingSystem : MonoBehaviour
     public Color selectColor = Color.green;
     public Color collapseColor = Color.blue;
 
-    private void Awake()
-    {
-        if (instance == null)
-        {
-            instance = this;
-        }
-
-        buildings = new List<Placeable>();
-        buildings = FindObjectsOfType<Placeable>().ToList();       
-    }
-
+    
     private void OnEnable()
     {
         modeContainer[BuildState.Mode.None] = new BuildNoneState(this);
@@ -323,4 +307,9 @@ public class BuildingSystem : MonoBehaviour
     }
 
 
+    protected override void Awake_internal()
+    {
+        buildings = new List<Placeable>();
+        buildings = FindObjectsOfType<Placeable>().ToList();
+    }
 }

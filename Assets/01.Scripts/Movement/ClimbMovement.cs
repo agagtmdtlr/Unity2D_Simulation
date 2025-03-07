@@ -34,12 +34,12 @@ public class ClimbMovement : MovementState
         body.isKinematic = false;
     }
 
-    public override bool NeedChagne(out MovementCategory category)
+    public override bool NeedChagne(out MovementMode category)
     {
-        category = MovementCategory.Climb;
+        category = MovementMode.Climb;
         if (animator.GetBool("ClimbPlatform") == false)
         {
-            category = MovementCategory.Groud;
+            category = MovementMode.Groud;
             return true;
         }
 
