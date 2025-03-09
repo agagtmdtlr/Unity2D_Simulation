@@ -8,7 +8,6 @@ public class BuildConstructMenuState : BuildState
     // context 의 contruct menu ui를 활성화 한다.
     GameObject menuObj { get { return context.constructMenuUI; } }
     UI_ConstructMode_Handler ui;
-    InventoryController inventory;
 
     public BuildConstructMenuState(BuildingSystem context) : base(context)
     {
@@ -17,7 +16,6 @@ public class BuildConstructMenuState : BuildState
 
     public override void BeginMode()
     {
-        inventory = context.interactor.GetComponent<InventoryController>();
 
         context.currentBuildSet = null;
 
@@ -126,7 +124,6 @@ public class BuildConstructState : BuildState
 {
     bool endContruct = false;
     bool consumeMaterial = false;
-    InventoryController inventory;
 
     public BuildConstructState(BuildingSystem context) : base(context)
     {
@@ -134,8 +131,6 @@ public class BuildConstructState : BuildState
 
     public override void BeginMode()
     {
-
-        inventory = context.interactor.GetComponent<InventoryController>();
 
         // reset trigger
         endContruct = false;

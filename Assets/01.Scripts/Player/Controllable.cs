@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Controllable : MonoBehaviour
 {
-    [Header("Input Command")]
     bool inputLocked = false;
 
     Component currentLocker;
@@ -37,6 +36,7 @@ public class Controllable : MonoBehaviour
 
     public bool InputLocked { get { return inputLocked; } }
 
+    [Header("Input Command")]
     bool inputInteract = false;
     public bool InputInteract {  get { UpdateInput(); return inputInteract; } }
 
@@ -47,6 +47,13 @@ public class Controllable : MonoBehaviour
 
     bool inputJump = false;
     public bool InputJump { get { UpdateInput(); return inputJump; } }
+
+    bool inputR = false;
+    public bool InputR { get { UpdateInput(); return inputR; } }
+
+    bool inputEsc = false;
+    public bool InputEsc { get { UpdateInput(); return inputEsc; } }
+
 
     bool updatedThisFrame = false;
 
@@ -63,7 +70,8 @@ public class Controllable : MonoBehaviour
 
             inputJump = inputLocked ? false : Input.GetButtonDown("Jump");
             inputInteract = inputLocked ? false : Input.GetKeyDown(KeyCode.E);
-
+            inputR = inputLocked ? false : Input.GetKeyDown(KeyCode.R);
+            inputEsc = inputLocked ? false : Input.GetKeyDown(KeyCode.Escape);
             updatedThisFrame = true;
         }
     }

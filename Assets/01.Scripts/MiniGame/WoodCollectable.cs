@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class Harvestable : MonoBehaviour
+public class WoodCollectable : MonoBehaviour
 {
+
     GameObject cuttedTreeTop;
 
     SpriteRenderer treeRenderer;
     Sensor interaction;
-    WoodCuttingSequencer sequencer;
     Spawnable spawnable;
+    Collider2D collider2d;
 
     bool consumed;
     [SerializeField] public int currentState = 0;
@@ -20,7 +21,6 @@ public class Harvestable : MonoBehaviour
     [SerializeField] bool isToolInteracting = false;
     ParticleSystem leafEffect;
     float effectPlayTime = 0f;
-
 
     public bool isEndState()
     {
@@ -39,12 +39,11 @@ public class Harvestable : MonoBehaviour
         TryGetComponent(out treeRenderer);
         TryGetComponent(out interaction);
         TryGetComponent(out spawnable);
+        TryGetComponent(out collider2d);
 
         cuttedTreeTop = transform.GetChild(0).gameObject;
-
-        sequencer = FindAnyObjectByType<WoodCuttingSequencer>(FindObjectsInactive.Include);
-
         leafEffect = GetComponent<ParticleSystem>();
+
     }
 
     private void OnEnable()
@@ -92,6 +91,7 @@ public class Harvestable : MonoBehaviour
         // Collectable 아이템을 스폰하고 수확불가능한 상태가 된다.
         consumed = true; // 나중에 하루가 지나면 초기화 된다.
         cuttedTreeTop.SetActive(true);
+        collider2d.enabled = false;
 
 
         yield return new WaitForSeconds(4.0f);
@@ -108,7 +108,6 @@ public class Harvestable : MonoBehaviour
         if (consumed)
             return;
 
-        sequencer.OnPlaySequencer(interaction.interactor.gameObject, this);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

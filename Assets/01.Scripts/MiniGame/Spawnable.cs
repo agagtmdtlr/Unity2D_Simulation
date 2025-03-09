@@ -11,4 +11,9 @@ public class Spawnable : MonoBehaviour
     {
         ItemSpawner.Instance.SpawnItem(position, spwanItem, spawnCount);
     }
+
+    public ItemCategory GetCategory()
+    {
+        return spwanItem.category;
+    }
 }

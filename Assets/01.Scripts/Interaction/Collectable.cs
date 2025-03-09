@@ -27,7 +27,7 @@ public class Collectable : MonoBehaviour
 
     public void OnColleted(Sensor sensor)
     {
-        if (interactable.interactor.TryGetComponent(out InventoryController inventory))
+        if (sensor.Interactor.TryGetComponent(out ItemStorage inventory))
         {
             inventory.SetAmountOfItem(item.itemInformation, item.itemAmount);
             Destroy(gameObject);

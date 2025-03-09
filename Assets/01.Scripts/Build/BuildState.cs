@@ -15,6 +15,9 @@ public abstract class BuildState
         Edit
     }
 
+    protected ItemStorage inventory { get { return context.interactor.GetComponent<ItemStorage>(); } }
+
+
     protected BuildingSystem context;
 
     public Vector3Int ClampCellPos(Vector3Int pos)
@@ -72,6 +75,7 @@ public class BuildNoneState : BuildState
 
     public override void BeginMode()
     {
+        context.EndBuilding();
     }
 
     public override void Check()

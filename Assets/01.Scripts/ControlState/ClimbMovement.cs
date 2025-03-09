@@ -2,25 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ClimbMovement : MovementState
+public class ClimbMovement : PlayerControlState
 {
-    Detection detection;
-    float beginPosYOffset = 0.0f;
-    float endPosYOffset = 0.0f;
+    [SerializeField] Detection detection;
+    [SerializeField] float beginPosYOffset = 0.0f;
+    [SerializeField] float endPosYOffset = 0.0f;
 
-    public ClimbMovement(PlayerController context,
-        Detection detection,
-        float beginPosYOffset,
-        float endPosYOffset
-        )
-        : base(context)
+    public override Mode GetMode() { return Mode.Climb; }
+
+    public override void Awake()
     {
-        this.detection = detection;
-        this.beginPosYOffset = beginPosYOffset;
-        this.endPosYOffset = endPosYOffset;
+        base.Awake();
     }
 
-    public override void End()
+    public override void Exit()
     {
         // set climb end position with offset Y
         float platformY = detection.bound.max.y;
@@ -30,23 +25,19 @@ public class ClimbMovement : MovementState
 
         animator.SetBool("ClimbPlatform", false);
 
-        renderer.color = Color.white;
+        renderer2d.color = Color.white;
         body.isKinematic = false;
     }
 
-    public override bool NeedChagne(out MovementMode category)
+    public override void NeedChagne()
     {
-        category = MovementMode.Climb;
         if (animator.GetBool("ClimbPlatform") == false)
         {
-            category = MovementMode.Groud;
-            return true;
+            context.ChangeState(Mode.Groud);
         }
-
-        return false;
     }
 
-    public override void Start()
+    public override void Enter()
     {
         body.isKinematic = true;
         velocity = Vector2.zero;
@@ -61,10 +52,10 @@ public class ClimbMovement : MovementState
         animator.SetBool("ClimbPlatform", true);
 
         // set debug anim color
-        renderer.color = Color.red;
+        renderer2d.color = Color.red;
     }
 
-    public override void Update()
+    public override void UpdateState()
     {
         
 

@@ -2,34 +2,36 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LadderMovement : MovementState
+public class LadderMovement : PlayerControlState
 {
-    Detection detection;
+    [SerializeField] float moveSpeed;
+    [SerializeField] Detection detection;
     float distance = 1f;
 
-    public LadderMovement(PlayerController context , Detection detection) : base(context)
+    public override Mode GetMode() { return Mode.Ladder; }
+
+    public override void Awake()
     {
-        this.detection = detection;
+        base.Awake();
     }
 
-    public override void End()
+    public override void Exit()
     {
         body.isKinematic = false;
-        renderer.color = Color.white;
+        renderer2d.color = Color.white;
 
         animator.SetBool("ClimbLadder", false);
 
-        body.velocity = new Vector2(input.x * moveSpeed, inputJump ? jumpSpeed : 0f);
+        body.velocity = new Vector2(input.x * moveSpeed, inputJump ? moveSpeed : 0f);
     }
 
-    public override bool NeedChagne(out MovementMode category)
+    public override void NeedChagne()
     {
-        category = MovementMode.Ladder;
         bool isClosedGround = false;
         // only check move direction and reached ground
         if (input.y < 0f)
         {
-            float origin = collider.bounds.min.y;
+            float origin = collider2d.bounds.min.y;
             float to = detection.bound.min.y;
 
             distance = Mathf.Abs(origin - to);
@@ -41,7 +43,7 @@ public class LadderMovement : MovementState
         }
         else if (input.y > 0f)
         {
-            float origin = collider.bounds.min.y;
+            float origin = collider2d.bounds.min.y;
             float to = detection.bound.max.y + 0.1f;
 
             distance = Mathf.Abs(origin - to);
@@ -53,27 +55,26 @@ public class LadderMovement : MovementState
 
         if ((isClosedGround || !detection.isInner))
         {
-            category = MovementMode.Groud;
-            return true;
+            context.ChangeState(Mode.Groud);
+            return;
         }
-
+        
         if((inputJump && input_Abs.x > 0f))
         {
-            category = MovementMode.Jump;
-            return true;
+            context.ChangeState(Mode.Jump);
+            return;
         }
 
-        return false;
     }
 
-    public override void Start()
+    public override void Enter()
     {
         distance = 1f;
 
         body.isKinematic = true;
         body.velocity = Vector2.zero;
 
-        renderer.color = Color.yellow;
+        renderer2d.color = Color.yellow;
 
 
         float start_x = detection.bound.center.x;
@@ -85,9 +86,9 @@ public class LadderMovement : MovementState
 
     }
 
-    public override void Update()
+    public override void UpdateState()
     {
-        Vector2 delta = Vector2.up * input.y * context.moveSpeed * Time.deltaTime;
+        Vector2 delta = Vector2.up * input.y * moveSpeed * Time.deltaTime;
         body.position = body.position + delta;
         animator.SetFloat("dir_y", input.y);
     }

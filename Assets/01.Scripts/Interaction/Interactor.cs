@@ -5,118 +5,63 @@ using UnityEngine;
 
 public class Interactor : MonoBehaviour
 {
-    Controllable control;
-    Collider2D collider2d;
-    public float interactionRange = 1.0f;
-    public Vector3 interactionOffset;
-    [SerializeField] private LayerMask whatIsInteractable;
-    List<Sensor> founditeractables = new List<Sensor>();
+    public Controllable control;
+    CircleCollider2D circle;
 
-    Sensor closestInteractable;
-    Sensor Interacted;
+    public List<Sensor> innerSensors = new List<Sensor>();
+    public Sensor Interacted { get; private set; }
 
     public bool IsInteracting { get { return Interacted != null; } }
 
+    public void AddSenser(Sensor sensor)
+    {
+        innerSensors.Add(sensor);
+    }
+
+    public void RemoveSensor(Sensor sensor)
+    {
+        if( Interacted == sensor)
+        {
+            Interacted = null;
+        }
+        innerSensors.Remove(sensor);
+    }
+
     private void Awake()
     {
-        TryGetComponent(out collider2d);
-        TryGetComponent(out control);
+        TryGetComponent(out circle);
     }
 
-    void EndInteracting()
+    public Sensor DoInteract()
     {
-        Interacted.FocusOut();
-        Interacted = null;
+        Interacted = GetInteractableObject();
+        if(Interacted != null)
+            Interacted.CallInteract(this);
+        return Interacted;
     }
 
-    public Sensor GetInteractableObject()
+public Sensor GetInteractableObject()
     {
-        founditeractables.Clear();
-
-        {
-            Collider2D[] colliders =
-                Physics2D.OverlapCircleAll(
-                    collider2d.bounds.center + interactionOffset,
-                    interactionRange,
-                    whatIsInteractable);
-
-            foreach (Collider2D other in colliders)
-            {
-                if(other.TryGetComponent(out Sensor interaciton))
-                {
-                    if(!interaciton.consumed)
-                    {
-                        if(interaciton.TriggerWay.HasFlag(InteractTriggerWay.Manual))
-                            founditeractables.Add(interaciton);
-
-                    }
-                }    
-            }
-        }
-
-
         Sensor target = null;
         float minDistance = Mathf.Infinity;
-        foreach (Sensor other in founditeractables)
+        foreach (Sensor other in innerSensors)
         {
-            float dist = Vector3.Distance(collider2d.bounds.center, other.transform.position);
+            float dist = Vector3.Distance(transform.position, other.transform.position);
             if (dist < minDistance)
             {
                 minDistance = dist;
                 target = other;
             }
         }
-
         return target;
-    }
-
-    private bool IsInnerRange(Vector3 position)
-    {
-        return Vector3.Distance(position, collider2d.bounds.center + interactionOffset) <= interactionRange;
-    }
-
-    void Update()
-    {
-        Sensor interactable = GetInteractableObject();
-        // 상화작용한 대상이 존재한다면? 범위를 벗어났다면 상호작용 안함
-        if(Interacted != null && !IsInnerRange(Interacted.transform.position))
-        {
-            EndInteracting();
-        }
-
-        // 상호작용 중이 아니라면...
-        if (Interacted == null && closestInteractable != interactable)
-        {
-
-            if (closestInteractable != null )
-            {
-                closestInteractable.FocusOut();
-            }
-
-            closestInteractable = interactable;
-            if(closestInteractable != null)
-            {
-                closestInteractable.FocusIn();
-            }
-        }
-
-        // if interact clicked then find interactable objects
-        if (Interacted is null && control.InputInteract)
-        {
-            if(closestInteractable != null && Interacted != closestInteractable)
-            {
-                closestInteractable.CallInteract(this);
-                Interacted = closestInteractable;
-            }
-        }
     }
 
     private void OnDrawGizmos()
     {
-        if(collider2d)
+        if(circle)
         {
             Gizmos.color = Color.magenta;
-            Gizmos.DrawWireSphere(collider2d.bounds.center + interactionOffset, interactionRange);
+            Gizmos.DrawWireSphere(circle.bounds.center, circle.radius);
         }
     }
 }

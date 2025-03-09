@@ -1,3 +1,4 @@
+using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -5,34 +6,57 @@ using UnityEngine;
 
 using UnityEngine.UI;
 
-public class PlayerController : MonoBehaviour
+public class PlayerControlContext : MonoBehaviour
 {
+    [Header("Camera")]
+    public CinemachineVirtualCamera virtualCamera;
+    public float lensSize = 7f;
+
     [Header("Ground Info")]
-    public float moveSpeed = 5f;
-    public float jumpSpeed = 700f;
     public bool isGrounded = false;
 
-    [Header("Climb Info")]
-    public Detection climbDetection;
-    public float climbBeginPosYOffset = 0.0f;
-    public float climbEndPosYOffset = 0.0f;
+    public Vector2 boxSize;
+    public float castDistance;
+    public LayerMask whatisGround;
 
-    [Header("Ladder Info")]
-    public Detection ladderDetection;
+    [Header("Interaction")]
+    public Interactor interactor;
+
+    [Header("Control State")]
+    [SerializeField] GameObject stateObj;
+
+    [Header("Inventory")]
+    public ItemStorage itemStorage;
+
 
     Controllable control;
     Animator animator;
     Rigidbody2D body;
     BoxCollider2D collider2d;
 
+    PlayerControlState.Mode currentMode;
+    Dictionary<PlayerControlState.Mode, PlayerControlState> stateContainer;
 
-    MovementMode currentCategory;
-    Dictionary<MovementMode, MovementState> stateContainer;
-    public void ChangeState(MovementMode toCategory)
+
+    public void ChangeState(PlayerControlState.Mode mode)
     {
-        stateContainer[currentCategory].End();
-        currentCategory = toCategory;
-        stateContainer[currentCategory].Start();
+        if(currentMode != mode)
+        {
+            stateContainer[currentMode].Exit();
+            currentMode = mode;
+            stateContainer[currentMode].Enter();
+        }
+    }
+
+    private void Awake()
+    {
+        stateContainer = new Dictionary<PlayerControlState.Mode, PlayerControlState>();
+        currentMode = PlayerControlState.Mode.Groud;
+        var states = stateObj.GetComponents<PlayerControlState>();
+        foreach (var state in states)
+        {
+            stateContainer[state.GetMode()] = state;
+        }
     }
 
     private void Start()
@@ -44,22 +68,6 @@ public class PlayerController : MonoBehaviour
 
         isGrounded = false;
 
-        if (ladderDetection == null || climbDetection == null)
-        {
-            Debug.LogAssertion("반드시 detection을 지정해주어야 합니다.");
-        }
-
-        stateContainer = new Dictionary<MovementMode, MovementState>();
-        currentCategory = MovementMode.Groud;
-
-        stateContainer[MovementMode.Groud] = 
-            new GroundMovement(this, climbDetection,ladderDetection);
-        stateContainer[MovementMode.Jump] = 
-            new JumpMovement(this, climbDetection,ladderDetection);
-        stateContainer[MovementMode.Climb] = 
-            new ClimbMovement(this, climbDetection, climbBeginPosYOffset, climbEndPosYOffset);
-        stateContainer[MovementMode.Ladder] = 
-            new LadderMovement(this, ladderDetection);
     }
 
     private void Update()
@@ -74,16 +82,12 @@ public class PlayerController : MonoBehaviour
             animator.SetFloat("dir_y", control.Axis.y);
         }
 
-        stateContainer[currentCategory].Update();
-        stateContainer[currentCategory].Check();
+        stateContainer[currentMode].UpdateState();
+        stateContainer[currentMode].NeedChagne();
     }
 
 
-    public Vector2 boxSize;
-    public float castDistance;
-    public LayerMask whatisGround;
-
-
+    
 
     bool IsGrounded()
     {

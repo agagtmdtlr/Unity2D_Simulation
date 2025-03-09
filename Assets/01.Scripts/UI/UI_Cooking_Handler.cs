@@ -77,10 +77,10 @@ public class UI_Cooking : MonoBehaviour
     }
 
    
-    public void UpdateUI(ItemSlot[] items)
+    public void UpdateUI(List<ItemSlot> items)
     {
         int columnSize = material_line_prefab.transform.childCount;
-        int needLine = (items.Length - 1) / columnSize + 1;
+        int needLine = (items.Count - 1) / columnSize + 1;
         int curLine = materialView.transform.childCount;
 
         if( needLine > curLine)
@@ -100,7 +100,7 @@ public class UI_Cooking : MonoBehaviour
             int l = i / columnSize;
             int c = i % columnSize;
 
-            if(i < items.Length)
+            if(i < items.Count)
             {
                 var item = items[i];
 

@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
+public abstract class FocusAction : MonoBehaviour
+{
+    public abstract void FocusIn(Transform toFocus);
+    public abstract void FocusOut(Transform toFocus);
+}
 public interface IFocusAction
 {
     public void FocusIn();
@@ -50,15 +55,18 @@ public class Sensor : MonoBehaviour
 
     public UnityEvent<Sensor> interactEvent;
 
+    Dictionary<InteractTriggerWay, UnityEvent<Sensor>> interactActions;
+
+
     Collider2D collider2d;
 
-    private Interactor _interactor;
-    public Interactor interactor
+    private Interactor interactor;
+    public Interactor Interactor
     {
-        get { return _interactor; }
+        get { return interactor; }
     }
 
-    public virtual void CallInteract(Interactor interactor)
+    public void CallInteract(Interactor interactor)
     {
         if(consumed) 
             return;
@@ -66,15 +74,15 @@ public class Sensor : MonoBehaviour
         if(consumeLife == InteractConsumeLife.Once) 
             consumed = true;
 
-        this._interactor = interactor;
+        this.interactor = interactor;
         interactEvent.Invoke(this);
     }
-
 
     public void FocusIn()
     {
         if(focusAction != null)
             focusAction.FocusIn();
+
     }
 
     public void FocusOut()
@@ -90,6 +98,7 @@ public class Sensor : MonoBehaviour
 
         TryGetComponent(out collider2d);
         TryGetComponent(out focusAction);
+
 
     }
     private void OnEnable()
@@ -114,8 +123,16 @@ public class Sensor : MonoBehaviour
                 CallInteract(interactor);
                 Consume();
             }
-
         }
+        else if( triggerWay.HasFlag(InteractTriggerWay.Manual) && !consumed)
+        {
+            if (collision.TryGetComponent(out Interactor interactor))
+            {
+                interactor.AddSenser(this);
+                FocusIn();
+            }
+        }
+
     }
 
     private void OnTriggerStay2D(Collider2D collision)
@@ -140,7 +157,14 @@ public class Sensor : MonoBehaviour
                 CallInteract(interactor);
                 Consume();
             }
-
+        }
+        else if (triggerWay.HasFlag(InteractTriggerWay.Manual))
+        {
+            if (collision.TryGetComponent(out Interactor interactor))
+            {
+                interactor.RemoveSensor(this);
+                FocusOut();
+            }
         }
     }
 

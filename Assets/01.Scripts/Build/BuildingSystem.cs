@@ -36,11 +36,13 @@ public class BuildingSystem : Globalable<BuildingSystem>
 
     [Header("Build UI")]
     public GameObject constructMenuUI;
+    public GameObject sidemenuUI;
 
     [Header("Building Asset")]
     public BuildSet[] buildSets;
 
     BuildState.Mode currentState = BuildState.Mode.None;
+    public BuildState.Mode CurrentState { get { return currentState; } }
 
     public BuildSet currentBuildSet;
     [HideInInspector] public bool selected = false;
@@ -48,7 +50,15 @@ public class BuildingSystem : Globalable<BuildingSystem>
     [HideInInspector] public List<Placeable> buildings;
     [HideInInspector] public GameObject buildModeUI;
 
-    public GameObject sidemenuUI;
+
+    public bool isCollapsed = false;
+    public List<Placeable> collapsedObjects = new List<Placeable>();
+
+    Dictionary<BuildState.Mode, BuildState> modeContainer = new Dictionary<BuildState.Mode, BuildState>();
+    [Header("Color Palette")]
+    public Color unselectColor = Color.white;
+    public Color selectColor = Color.green;
+    public Color collapseColor = Color.blue;
 
     public bool isOutRangeToPlace(Vector3Int pos)
     {
@@ -160,15 +170,7 @@ public class BuildingSystem : Globalable<BuildingSystem>
     }
 
 
-    Dictionary<BuildState.Mode, BuildState> modeContainer = new Dictionary<BuildState.Mode, BuildState>();
-
-
-    public Color unselectColor = Color.white;
-    public Color selectColor = Color.green;
-    public Color collapseColor = Color.blue;
-
-    
-    private void OnEnable()
+    protected override void Awake_internal()
     {
         modeContainer[BuildState.Mode.None] = new BuildNoneState(this);
         modeContainer[BuildState.Mode.SideMenu] = new BuildSideMenuState(this);
@@ -178,14 +180,11 @@ public class BuildingSystem : Globalable<BuildingSystem>
 
         var pointerPos = beginPos + (endPos - beginPos) / 2;
         pointer.transform.position = gridLayout.CellToWorld(pointerPos);
-        ChangeMode(BuildState.Mode.None);       
+        currentState = (BuildState.Mode.None);
 
-        Sensor sensor = GetComponent<Sensor>();
-    }
 
-    private void OnDisable()
-    {
-        Sensor sensor = GetComponent<Sensor>();
+        buildings = new List<Placeable>();
+        buildings = FindObjectsOfType<Placeable>().ToList();
     }
 
     private void FixedUpdate()
@@ -200,12 +199,9 @@ public class BuildingSystem : Globalable<BuildingSystem>
     {
         modeContainer[currentState].Check();
         modeContainer[currentState].Update();
-
     }
 
 
-    public bool isCollapsed = false;
-    public List<Placeable> collapsedObjects = new List<Placeable>();
 
     public void SetActiveAllMovableCharacter(bool activate)
     {
@@ -243,12 +239,18 @@ public class BuildingSystem : Globalable<BuildingSystem>
     public GameObject buildCameraLaction;
     public CinemachineVirtualCamera virtualCamera;
 
+    public Transform prevCameraLoaction;
+    public float prevLensSize;
+
     public void BeingBuilding(Sensor sensor)
     {
+        prevCameraLoaction = virtualCamera.Follow;
+        prevLensSize = virtualCamera.m_Lens.OrthographicSize;
         virtualCamera.Follow = buildCameraLaction.transform;
+        virtualCamera.m_Lens.OrthographicSize = 11f;
 
         pointer.SetActive(true);
-        interactor = sensor.interactor;
+        interactor = sensor.Interactor;
         ChangeMode(BuildState.Mode.SideMenu);
 
         Vector3Int cp = beginPos;
@@ -264,34 +266,15 @@ public class BuildingSystem : Globalable<BuildingSystem>
             }
         }
 
-        if (interactor.TryGetComponent(out Rigidbody2D playerRigidBody))
-        {
-            playerRigidBody.isKinematic = true;
-            playerRigidBody.velocity = Vector2.zero;
-        }
-        if (interactor.TryGetComponent(out Controllable control))
-        {
-            control.Lock(this);
-        }
-
     }
     public void EndBuilding()
     {
-        virtualCamera.Follow = interactor.transform;
+        virtualCamera.m_Lens.OrthographicSize = prevLensSize;
+        virtualCamera.Follow = prevCameraLoaction;
 
         pointer.SetActive(false);
         overlayMap.ClearAllTiles();
         lineOverlayMap.ClearAllTiles();
-
-
-        if (interactor.TryGetComponent(out Rigidbody2D playerRigidBody))
-        {
-            playerRigidBody.isKinematic = false;
-        }
-        if (interactor.TryGetComponent(out Controllable control))
-        {
-            control.UnLock(this);
-        }
     }
 
     public static Vector3Int WorldToGrid(Vector3 position)
@@ -307,9 +290,5 @@ public class BuildingSystem : Globalable<BuildingSystem>
     }
 
 
-    protected override void Awake_internal()
-    {
-        buildings = new List<Placeable>();
-        buildings = FindObjectsOfType<Placeable>().ToList();
-    }
+    
 }

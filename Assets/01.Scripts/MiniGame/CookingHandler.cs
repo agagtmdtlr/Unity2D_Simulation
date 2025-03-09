@@ -15,9 +15,11 @@ public class CookingHandler : MonoBehaviour
 
     Sensor sensor;
     bool interacting;
+    public bool Interacting { get { return interacting; } }
 
 
     bool isCooking;
+    public bool IsCooking { get { return isCooking; } }
     CookRecipe cookingRecipe;
     int cookingAmount;
     float cookingTime;
@@ -80,34 +82,28 @@ public class CookingHandler : MonoBehaviour
     private void BeginCookInteraction(Sensor sensor)
     {
         clock.rotation = Quaternion.identity;
-        var interactor = sensor.interactor;
-        if (interactor.TryGetComponent(out Controllable control))
+        var interactor = sensor.Interactor;
+        if (isCooking)
         {
-            if( control.Lock(this) )
-            {
-                if (isCooking)
-                {
-                    // 요리된 음식을 반환한다.
-                    int spawnAmount = cookingRecipe.outAmount * cookingAmount;
-                    ItemSpawner.Instance.SpawnItem(transform.position, cookingRecipe.outitem, spawnAmount);
-                    isCooking = false;
-                    EndCookInteraction();
-                }
-                else
-                {
-                    interacting = true;
+            // 요리된 음식을 반환한다.
+            int spawnAmount = cookingRecipe.outAmount * cookingAmount;
+            ItemSpawner.Instance.SpawnItem(transform.position, cookingRecipe.outitem, spawnAmount);
+            isCooking = false;
+            EndCookInteraction();
+        }
+        else
+        {
+            interacting = true;
 
-                    ui.gameObject.SetActive(true);
+            ui.gameObject.SetActive(true);
 
-                    InventoryController inventory = sensor.interactor.GetComponent<InventoryController>();
-                    ui.UpdateUI(inventory.Items);
+            ItemStorage inventory = sensor.Interactor.GetComponent<ItemStorage>();
+            ui.UpdateUI(inventory.SeperatedItems[ItemCategory.Fish]);
 
-                    ui.onClickCookButton.AddListener(StartCooking);
-                }
-            }
+            ui.onClickCookButton.AddListener(StartCooking);
         }
 
-        
+
     }
     
     private void StartCooking(ItemSlot item, int amount)
@@ -142,7 +138,7 @@ public class CookingHandler : MonoBehaviour
 
         ui.gameObject.SetActive(false);
 
-        var interactor = sensor.interactor;
+        var interactor = sensor.Interactor;
         if (interactor.TryGetComponent(out Controllable control))
         {
             control.UnLock(this);

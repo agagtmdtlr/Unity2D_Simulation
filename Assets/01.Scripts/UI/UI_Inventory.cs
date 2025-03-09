@@ -136,8 +136,6 @@ public class UI_Inventory : MonoBehaviour
         item_name_text.text = "";
         item_cost_text.text = "";
         item_description_text.text = "";
-
-        
     }
 
     public void ShowInventory(ItemCategory category, List<ItemSlot> itemList)
@@ -156,7 +154,6 @@ public class UI_Inventory : MonoBehaviour
 
     public void MoveSelectItem(int inputX, int inputY, List<ItemSlot> itemList)
     {
-        // 이동이 없다면 종료
         if (itemList.Count == 0)
         {
             return;
