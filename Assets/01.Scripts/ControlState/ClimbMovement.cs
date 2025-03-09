@@ -24,8 +24,6 @@ public class ClimbMovement : PlayerControlState
         body.position = endPosition;
 
         animator.SetBool("ClimbPlatform", false);
-
-        renderer2d.color = Color.white;
         body.isKinematic = false;
     }
 
@@ -51,8 +49,6 @@ public class ClimbMovement : PlayerControlState
 
         animator.SetBool("ClimbPlatform", true);
 
-        // set debug anim color
-        renderer2d.color = Color.red;
     }
 
     public override void UpdateState()

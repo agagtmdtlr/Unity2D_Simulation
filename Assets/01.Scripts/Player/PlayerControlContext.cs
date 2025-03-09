@@ -8,6 +8,8 @@ using UnityEngine.UI;
 
 public class PlayerControlContext : MonoBehaviour
 {
+    public Color defaultColor = Color.green;
+
     [Header("Camera")]
     public CinemachineVirtualCamera virtualCamera;
     public float lensSize = 7f;

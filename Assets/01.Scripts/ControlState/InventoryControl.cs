@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class InventoryControl : PlayerControlState
 {
-    ItemStorage storage;
+    [SerializeField] ItemStorage storage;
     ItemCategory selectedCategory;
     Dictionary<ItemCategory, List<ItemSlot>> SeperatedItems { get { return storage.SeperatedItems; } }
 
@@ -16,7 +16,6 @@ public class InventoryControl : PlayerControlState
     public override void Awake()
     {
         base.Awake();
-        this.storage = context.GetComponent<ItemStorage>();
     }
 
     public override void Enter()

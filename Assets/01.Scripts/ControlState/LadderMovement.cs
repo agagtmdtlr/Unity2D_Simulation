@@ -18,8 +18,6 @@ public class LadderMovement : PlayerControlState
     public override void Exit()
     {
         body.isKinematic = false;
-        renderer2d.color = Color.white;
-
         animator.SetBool("ClimbLadder", false);
 
         body.velocity = new Vector2(input.x * moveSpeed, inputJump ? moveSpeed : 0f);
@@ -73,9 +71,6 @@ public class LadderMovement : PlayerControlState
 
         body.isKinematic = true;
         body.velocity = Vector2.zero;
-
-        renderer2d.color = Color.yellow;
-
 
         float start_x = detection.bound.center.x;
         var startPos = body.position;

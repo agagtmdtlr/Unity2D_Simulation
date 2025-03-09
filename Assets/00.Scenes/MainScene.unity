@@ -2246,6 +2246,10 @@ PrefabInstance:
       propertyPath: climbBeginPosYOffset
       value: -1.32
       objectReference: {fileID: 0}
+    - target: {fileID: 6195586037463323389, guid: aa345fa7995afe743ae906eaf358f811, type: 3}
+      propertyPath: storage
+      value: 
+      objectReference: {fileID: 2068281149}
     - target: {fileID: 7266009981605894507, guid: aa345fa7995afe743ae906eaf358f811, type: 3}
       propertyPath: m_Name
       value: Player
@@ -3685,7 +3689,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1977560870
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3923,6 +3927,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ui: {fileID: 0}
+  items:
+  - itemInformation: {fileID: 11400000, guid: 382c66a76b4d48044bc5de3297a5635b, type: 2}
+    itemAmount: 10
+  - itemInformation: {fileID: 11400000, guid: ff59afa529863444ba1d7cde47af54dd, type: 2}
+    itemAmount: 10
+  - itemInformation: {fileID: 11400000, guid: 4f127d8b174b56d4386b24271517ff1a, type: 2}
+    itemAmount: 10
+  - itemInformation: {fileID: 11400000, guid: 82dfede8f3ebd0e43a4dacfd32c543ee, type: 2}
+    itemAmount: 10
+  - itemInformation: {fileID: 11400000, guid: 118610c4d7b233f48b213beaf2042e57, type: 2}
+    itemAmount: 5
 --- !u!1 &2122216132
 GameObject:
   m_ObjectHideFlags: 0

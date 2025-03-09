@@ -13,6 +13,9 @@ public class ItemSlot
 public class ItemStorage : MonoBehaviour
 {
     public UI_Inventory ui;
+
+    [SerializeField] private ItemSlot[] items;
+
     private Dictionary<ItemCategory, List<ItemSlot>> seperatedItems;
     public Dictionary<ItemCategory, List<ItemSlot>> SeperatedItems { get { return seperatedItems; } }
 
@@ -28,6 +31,11 @@ public class ItemStorage : MonoBehaviour
         for(int c = 0; c< categoryCount; c++)
         {
             seperatedItems[(ItemCategory)c] = new List<ItemSlot>();
+        }
+
+        foreach(var item in items)
+        {
+            SetAmountOfItem(item.itemInformation, item.itemAmount);
         }
     }
 
