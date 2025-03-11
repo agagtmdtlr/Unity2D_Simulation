@@ -22,10 +22,12 @@ public class Placeable : MonoBehaviour
         Vector3Int beginInt = LeftBottom;
         beginInt.x += Size.x / 3;
 
-        Vector3 origin = BuildingSystem.Instance.gridLayout.CellToWorld(beginInt);
+        var gridlayout = BuildingSystem.Instance.gridLayout;
+
+        Vector3 origin = gridlayout.CellToWorld(beginInt);
 
         // raycast 검사로 바닥까지의 거리를 계산한다.
-        RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.down, 1000f, layerMask);
+        RaycastHit2D hit = Physics2D.Raycast(origin , Vector2.down, 1000f, layerMask);
         if (hit.collider != null)
         {
             // 사다리는 아래에 처음 만나는 바닥까지 생성한다.

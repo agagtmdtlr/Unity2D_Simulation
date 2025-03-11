@@ -1,11 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Tilemaps;
 using System.Linq;
 using Cinemachine;
-using Unity.VisualScripting;
 
 
 public class BuildingSystem : Globalable<BuildingSystem>
@@ -17,6 +15,7 @@ public class BuildingSystem : Globalable<BuildingSystem>
 
     public Tilemap floorMap;
     public Tilemap ceilMap;
+    public Tilemap debugMap;
     public TileBase colliderTile;
 
     public Tilemap overlayMap;
@@ -60,6 +59,16 @@ public class BuildingSystem : Globalable<BuildingSystem>
     public Color selectColor = Color.green;
     public Color collapseColor = Color.blue;
 
+    public Vector3Int WorldToCell(Vector3 pos)
+    {
+        return gridLayout.WorldToCell(pos);
+    }
+
+    public Vector3 CellToWorld(Vector3Int cell)
+    {
+        return gridLayout.CellToWorld(cell);
+    }
+
     public bool isOutRangeToPlace(Vector3Int pos)
     {
         if (pos.x < beginPos.x || pos.x > endPos.x)
@@ -95,28 +104,34 @@ public class BuildingSystem : Globalable<BuildingSystem>
         ceilMap.SetTile(pos, colliderTile);
     }
 
-    public void ReserveUpdateProceduralLadder()
+    public void SetTileToDebug(Vector3Int pos)
     {
-        StopCoroutine("UpdateAllProceduralLadder");
-        StartCoroutine("UpdateAllProceduralLadder");
+        debugMap.SetTile(pos, fillTile);
     }
 
-    public IEnumerator UpdateAllProceduralLadder()
+    public void ReserveUpdateProceduralLadder()
+    {
+        StopCoroutine("UpdateAllProceduralPlatform");
+        StartCoroutine("UpdateAllProceduralPlatform");
+    }
+
+    public IEnumerator UpdateAllProceduralPlatform()
     {
         // collider 정보가 업데이트 된 후 수행되어야 한다.
         yield return new WaitForFixedUpdate();
 
         floorMap.ClearAllTiles();
         ceilMap.ClearAllTiles();
+        debugMap.ClearAllTiles();
 
         for (int i = 0; i < buildings.Count; i++)
         {
-            UpdateProceduralLadder(buildings[i]);
+            UpdateProceduralPlatform(buildings[i]);
         }
     }
 
     
-    public void UpdateProceduralLadder(Placeable building)
+    public void UpdateProceduralPlatform(Placeable building)
     {
         Vector3Int leftbottom = building.LeftBottom;
         Vector3Int rightTop = building.RightTop;
@@ -158,8 +173,8 @@ public class BuildingSystem : Globalable<BuildingSystem>
             building.ExtendLadderToGround(whatIsGround);
         }
 
-        building.GenerateTileColliderFromBound();
         building.ExtendBridgeToGround(whatIsGround);
+        building.GenerateTileColliderFromBound();
         
     }
 
@@ -286,6 +301,7 @@ public class BuildingSystem : Globalable<BuildingSystem>
     {
         Vector3Int cellPos = Instance.gridLayout.WorldToCell(position);
         position = Instance.gridLayout.CellToWorld(cellPos);
+        
         return position;
     }
 

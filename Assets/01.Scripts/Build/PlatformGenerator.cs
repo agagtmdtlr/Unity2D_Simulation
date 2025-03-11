@@ -6,7 +6,7 @@ using UnityEngine;
 public class PlatformGenerator : MonoBehaviour
 {
     public GameObject ceilprefab;
-    public GameObject floorprefab;
+    public GameObject floorprefab;  
     public Vector3Int Size;
     void CalculateSizeInCell()
     {
@@ -28,13 +28,22 @@ public class PlatformGenerator : MonoBehaviour
         var ceilmap = BuildingSystem.Instance.ceilMap;
 
         var box = GetComponent<BoxCollider2D>();
-        var min = BuildingSystem.WorldToGrid( box.bounds.min );
-        var max = BuildingSystem.WorldToGrid( box.bounds.max );
+        var min = BuildingSystem.WorldToGrid( box.bounds.min + Vector3.down * 0.5f);
+        var max = BuildingSystem.WorldToGrid( box.bounds.max + Vector3.down * 0.5f);
+
         
-        for(int i = min.x; i < max.x; i++)
+
+
+        for (int i = min.x; i < max.x; i++)
         {
-            BuildingSystem.Instance.SetTileToFloor(new Vector3Int( i, min.y -1, 0));
-            BuildingSystem.Instance.SetTileToCeil(new Vector3Int( i, max.y - 1, 0));
+            var floorPoint = new Vector3Int(i, min.y , 0);
+            var ceilPoint = new Vector3Int(i, max.y , 0);
+            BuildingSystem.Instance.SetTileToFloor(floorPoint);
+            BuildingSystem.Instance.SetTileToCeil(ceilPoint);
+
+            BuildingSystem.Instance.SetTileToDebug(floorPoint);
+            BuildingSystem.Instance.SetTileToDebug(ceilPoint);
+            
         }
     }
 
